@@ -6,6 +6,12 @@ import { Smartphone, Mail, Music2, Facebook, Instagram } from 'lucide-react';
 import { lovable } from '@/integrations/lovable/index';
 import { useToast } from '@/hooks/use-toast';
 
+const AppleIcon = () => (
+  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+  </svg>
+);
+
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -15,8 +21,9 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const providers: Array<{ label: string; icon: React.FC<any>; bg: string; route?: string; action?: 'google' }> = [
+const providers: Array<{ label: string; icon: React.FC<any>; bg: string; route?: string; action?: 'google' | 'apple' }> = [
   { label: 'Continue with Google', icon: GoogleIcon, action: 'google', bg: 'bg-surface' },
+  { label: 'Continue with Apple', icon: AppleIcon, action: 'apple', bg: 'bg-surface' },
   { label: 'Continue with TikTok', icon: Music2, route: '/login/tiktok', bg: 'bg-surface' },
   { label: 'Continue with Facebook', icon: Facebook, route: '/login/facebook', bg: 'bg-surface' },
   { label: 'Continue with Instagram', icon: Instagram, route: '/login/instagram', bg: 'bg-surface' },
@@ -29,9 +36,9 @@ const LoginHub = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleSignIn = async () => {
+  const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
 
@@ -45,14 +52,13 @@ const LoginHub = () => {
       return;
     }
 
-    // Session set, navigate
     navigate('/paywall/1');
   };
 
   const handleClick = (p: (typeof providers)[number]) => {
-    if ('action' in p && p.action === 'google') {
-      handleGoogleSignIn();
-    } else if ('route' in p && p.route) {
+    if (p.action) {
+      handleOAuthSignIn(p.action);
+    } else if (p.route) {
       navigate(p.route);
     }
   };
@@ -81,11 +87,11 @@ const LoginHub = () => {
             whileHover={{ x: 4 }}
             whileTap={{ x: 2, scale: 0.98 }}
             onClick={() => handleClick(p)}
-            disabled={p.action === 'google' && loading}
+            disabled={!!p.action && loading}
             className={`flex w-full items-center gap-3 rounded-xl ${p.bg} border border-border px-5 py-3.5 font-body font-medium text-foreground transition-colors hover:bg-card disabled:opacity-50`}
           >
             <p.icon className="h-5 w-5 text-muted-foreground" />
-            <span>{p.action === 'google' && loading ? 'Connecting...' : p.label}</span>
+            <span>{p.action && loading ? 'Connecting...' : p.label}</span>
           </motion.button>
         ))}
 
