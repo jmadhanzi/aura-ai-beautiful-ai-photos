@@ -124,11 +124,11 @@ const HomeScreen = () => {
       <header className="relative flex items-center justify-between px-6 pt-12 pb-4">
         <div>
           <p className="text-xs text-muted-foreground font-body">Good morning ✦</p>
-          <h1 className="font-display text-xl font-bold text-foreground">Welcome to AURA</h1>
+          <h1 className="font-display text-xl font-bold text-foreground">Welcome{currentUser?.name ? `, ${currentUser.name}` : ' to AURA'}</h1>
         </div>
-        <div className="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-sm text-obsidian" style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}>
-          A
-        </div>
+        <button onClick={signOut} className="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-sm text-obsidian" style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}>
+          {currentUser?.name?.[0]?.toUpperCase() || 'A'}
+        </button>
       </header>
 
       <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex-1 px-6 space-y-6">
@@ -173,15 +173,17 @@ const HomeScreen = () => {
             <div className="rounded-[20px] overflow-hidden" style={{ border: '2px solid rgba(201,168,76,0.25)' }}>
               <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
               <div className="p-4 flex gap-3">
-                <button onClick={() => setPreview(null)} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <button onClick={() => { setPreview(null); setSelectedFile(null); }} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   Remove
                 </button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="relative flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden"
+                  onClick={handleUploadAndTransform}
+                  disabled={uploading}
+                  className="relative flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden disabled:opacity-50"
                 >
-                  <span className="relative z-10">Transform This Photo →</span>
+                  <span className="relative z-10">{uploading ? 'Uploading...' : 'Transform This Photo →'}</span>
                   <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
                 </motion.button>
               </div>
