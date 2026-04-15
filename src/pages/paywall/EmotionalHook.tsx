@@ -109,7 +109,6 @@ const EmotionalHook = () => {
           {stats.map((s) => (
             <div
               key={s.label}
-              <div
               className="flex-1 flex flex-col items-center gap-1 rounded-xl py-3 px-2 glass-card"
             >
               <span className="font-display text-base font-bold text-gold">{s.value}</span>
