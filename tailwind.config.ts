@@ -79,6 +79,8 @@ export default {
         "fade-up": { "0%": { opacity: "0", transform: "translateY(20px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
         "shimmer": { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
         "glow-pulse": { "0%, 100%": { opacity: "0.4" }, "50%": { opacity: "1" } },
+        "dotPulse": { "0%, 100%": { opacity: "0.3", transform: "scale(1)" }, "50%": { opacity: "1", transform: "scale(1.4)" } },
+        "auroraShift": { "0%": { transform: "scale(1) rotate(0deg)" }, "100%": { transform: "scale(1.1) rotate(3deg)" } },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
