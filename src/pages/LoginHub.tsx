@@ -91,7 +91,7 @@ const LoginHub = () => {
             className={`flex w-full items-center gap-3 rounded-xl ${p.bg} border border-border px-5 py-3.5 font-body font-medium text-foreground transition-colors hover:bg-card disabled:opacity-50`}
           >
             <p.icon className="h-5 w-5 text-muted-foreground" />
-            <span>{p.action === 'google' && loading ? 'Connecting...' : p.label}</span>
+            <span>{p.action && loading ? 'Connecting...' : p.label}</span>
           </motion.button>
         ))}
 
