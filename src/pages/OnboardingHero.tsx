@@ -69,12 +69,15 @@ const OnboardingHero = () => {
         transition={{ delay: 1.1, duration: 0.5 }}
         className="flex flex-col items-center gap-3 w-full max-w-sm"
       >
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/onboarding/2')}
-          className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-lg font-semibold text-obsidian transition-transform active:scale-95"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-lg font-semibold text-obsidian overflow-hidden"
         >
-          Get Started Free →
-        </button>
+          <span className="relative z-10">Get Started Free →</span>
+          <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
+        </motion.button>
         <button
           onClick={() => navigate('/login')}
           className="font-body text-sm text-muted-foreground transition-colors hover:text-foreground"

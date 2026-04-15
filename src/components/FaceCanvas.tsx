@@ -17,22 +17,16 @@ const FaceCanvas = () => {
       >
         {/* SVG Face wireframe */}
         <svg width="140" height="180" viewBox="0 0 140 180" fill="none">
-          {/* Face outline */}
           <ellipse cx="70" cy="90" rx="55" ry="72" stroke="rgba(201,168,76,0.35)" strokeWidth="1" />
-          {/* Left eye */}
           <ellipse cx="48" cy="75" rx="10" ry="6" stroke="rgba(201,168,76,0.35)" strokeWidth="0.8" />
           <ellipse cx="48" cy="75" rx="4" ry="3.5" fill="rgba(201,168,76,0.25)" />
           <circle cx="46" cy="73" r="1.2" fill="rgba(255,255,255,0.6)" />
-          {/* Right eye */}
           <ellipse cx="92" cy="75" rx="10" ry="6" stroke="rgba(201,168,76,0.35)" strokeWidth="0.8" />
           <ellipse cx="92" cy="75" rx="4" ry="3.5" fill="rgba(201,168,76,0.25)" />
           <circle cx="90" cy="73" r="1.2" fill="rgba(255,255,255,0.6)" />
-          {/* Nose */}
           <path d="M70 82 L66 100 L74 100" stroke="rgba(201,168,76,0.25)" strokeWidth="0.8" fill="none" />
-          {/* Lips */}
           <path d="M55 115 Q63 108 70 112 Q77 108 85 115" stroke="rgba(201,168,76,0.35)" strokeWidth="0.8" fill="none" />
           <path d="M55 115 Q70 124 85 115" stroke="rgba(201,168,76,0.25)" strokeWidth="0.6" fill="none" />
-          {/* Contour points */}
           <circle cx="70" cy="16" r="3" fill="rgba(0,229,195,0.5)" />
           <circle cx="70" cy="164" r="3" fill="rgba(0,229,195,0.5)" />
           <circle cx="14" cy="90" r="3" fill="rgba(0,229,195,0.5)" />
@@ -51,19 +45,27 @@ const FaceCanvas = () => {
         />
       </div>
 
-      {/* Floating badges */}
-      <Badge label="✨ AI Enhanced" className="-top-2 -right-16" delay={0.6} />
-      <Badge label="📐 68 Points" className="-bottom-2 -left-14" delay={0.8} />
-      <Badge label="🔒 Private" className="top-1/2 -right-16 -translate-y-1/2" delay={1.0} />
+      {/* Floating badges with float animation */}
+      <Badge label="✨ AI Enhanced" className="-top-2 -right-16" delay={0.6} floatDelay={0} />
+      <Badge label="📐 68 Points" className="-bottom-2 -left-14" delay={0.8} floatDelay={1} />
+      <Badge label="🔒 Private" className="top-1/2 -right-16 -translate-y-1/2" delay={1.0} floatDelay={2} />
     </div>
   );
 };
 
-const Badge = ({ label, className, delay }: { label: string; className: string; delay: number }) => (
+const Badge = ({ label, className, delay, floatDelay }: { label: string; className: string; delay: number; floatDelay: number }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ delay, duration: 0.4 }}
+    animate={{
+      opacity: 1,
+      scale: 1,
+      y: [0, -4, 0],
+    }}
+    transition={{
+      opacity: { delay, duration: 0.4 },
+      scale: { delay, duration: 0.4 },
+      y: { delay: delay + 0.5, duration: 3, repeat: Infinity, ease: 'easeInOut', repeatDelay: floatDelay * 0.3 },
+    }}
     className={`absolute whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-body font-medium ${className}`}
     style={{
       color: '#C9A84C',
