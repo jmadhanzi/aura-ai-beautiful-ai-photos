@@ -49,10 +49,10 @@ const LoginHub = () => {
     navigate('/paywall/1');
   };
 
-  const handleClick = (p: typeof providers[number]) => {
-    if (p.action === 'google') {
+  const handleClick = (p: (typeof providers)[number]) => {
+    if ('action' in p && p.action === 'google') {
       handleGoogleSignIn();
-    } else if (p.route) {
+    } else if ('route' in p && p.route) {
       navigate(p.route);
     }
   };
