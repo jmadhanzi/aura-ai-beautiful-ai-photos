@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { useAppStore } from '@/store/useAppStore';
+import { supabase } from '@/integrations/supabase/client';
 
 const timeline = [
   { step: '1', label: 'Today', sub: 'Free trial starts', active: true },
@@ -21,10 +22,19 @@ const FreeTrialGuarantee = () => {
   const navigate = useNavigate();
   const { setIsProUser, setOnboardingComplete } = useAppStore();
 
-  const handleStart = () => {
+  const handleStart = async () => {
     setIsProUser(true);
     setOnboardingComplete(true);
-    try { localStorage.setItem('aura_user', JSON.stringify({ isProUser: true, onboardingComplete: true })); } catch {}
+    // Update profile in Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { selectedPlan } = useAppStore.getState();
+      await supabase.from('profiles').update({
+        is_pro: true,
+        plan_type: selectedPlan,
+        trial_started_at: new Date().toISOString(),
+      }).eq('id', user.id);
+    }
     navigate('/home');
   };
 
