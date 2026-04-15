@@ -1,9 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
-import { ChevronRight, ArrowUp, Home, Search, FolderOpen, Settings } from 'lucide-react';
+import { ChevronRight, ArrowUp, Home, Search, FolderOpen, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useAppStore } from '@/store/useAppStore';
 const quickTools = [
   { emoji: '✨', label: 'Skin' },
   { emoji: '👔', label: 'Headshot' },
@@ -15,10 +17,13 @@ const quickTools = [
   { emoji: '📱', label: 'Optimize' },
 ];
 
-const recentEdits = [
-  { name: 'Portrait_final.jpg', tool: 'AI Skin Retouching', time: '2 hours ago', gradient: 'linear-gradient(135deg, #8B5CF6, #C084FC)' },
-  { name: 'Headshot_LinkedIn.png', tool: 'Pro Headshot', time: 'Yesterday', gradient: 'linear-gradient(135deg, #FF6B9D, #F59E0B)' },
-];
+interface RecentEdit {
+  id: string;
+  name: string;
+  tool: string;
+  time: string;
+  gradient: string;
+}
 
 const tabs = [
   { icon: Home, label: 'Home', path: '/home' },
@@ -29,20 +34,72 @@ const tabs = [
 
 const HomeScreen = () => {
   const navigate = useNavigate();
+  const { currentUser, signOut } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(false);
   const [hoverUpload, setHoverUpload] = useState(false);
+  const [recentEdits, setRecentEdits] = useState<RecentEdit[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  const gradients = [
+    'linear-gradient(135deg, #8B5CF6, #C084FC)',
+    'linear-gradient(135deg, #FF6B9D, #F59E0B)',
+    'linear-gradient(135deg, #06B6D4, #3B82F6)',
+  ];
+
+  // Fetch recent edits
+  useEffect(() => {
+    const fetchEdits = async () => {
+      const { data } = await supabase
+        .from('photo_edits')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (data) {
+        setRecentEdits(data.map((e, i) => ({
+          id: e.id,
+          name: e.original_url?.split('/').pop() || 'Untitled',
+          tool: e.tool_used || 'AI Edit',
+          time: new Date(e.created_at).toLocaleDateString(),
+          gradient: gradients[i % gradients.length],
+        })));
+      }
+    };
+    fetchEdits();
+  }, []);
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) return;
+    setSelectedFile(file);
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
   }, []);
+
+  const handleUploadAndTransform = async () => {
+    if (!selectedFile || !currentUser) return;
+    setUploading(true);
+    const filePath = `${currentUser.id}/${Date.now()}_${selectedFile.name}`;
+    const { error } = await supabase.storage.from('photos').upload(filePath, selectedFile);
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+      await supabase.from('photo_edits').insert({
+        user_id: currentUser.id,
+        original_url: publicUrl,
+        tool_used: 'AI Transform',
+        prompt_used: prompt || null,
+      });
+    }
+    setUploading(false);
+    setPreview(null);
+    setSelectedFile(null);
+  };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
