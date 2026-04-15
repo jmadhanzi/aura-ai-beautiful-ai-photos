@@ -1,9 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
-import { ChevronRight, ArrowUp, Home, Search, FolderOpen, Settings } from 'lucide-react';
+import { ChevronRight, ArrowUp, Home, Search, FolderOpen, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useAppStore } from '@/store/useAppStore';
 const quickTools = [
   { emoji: '✨', label: 'Skin' },
   { emoji: '👔', label: 'Headshot' },
@@ -15,10 +17,13 @@ const quickTools = [
   { emoji: '📱', label: 'Optimize' },
 ];
 
-const recentEdits = [
-  { name: 'Portrait_final.jpg', tool: 'AI Skin Retouching', time: '2 hours ago', gradient: 'linear-gradient(135deg, #8B5CF6, #C084FC)' },
-  { name: 'Headshot_LinkedIn.png', tool: 'Pro Headshot', time: 'Yesterday', gradient: 'linear-gradient(135deg, #FF6B9D, #F59E0B)' },
-];
+interface RecentEdit {
+  id: string;
+  name: string;
+  tool: string;
+  time: string;
+  gradient: string;
+}
 
 const tabs = [
   { icon: Home, label: 'Home', path: '/home' },
@@ -29,20 +34,72 @@ const tabs = [
 
 const HomeScreen = () => {
   const navigate = useNavigate();
+  const { currentUser, signOut } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(false);
   const [hoverUpload, setHoverUpload] = useState(false);
+  const [recentEdits, setRecentEdits] = useState<RecentEdit[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  const gradients = [
+    'linear-gradient(135deg, #8B5CF6, #C084FC)',
+    'linear-gradient(135deg, #FF6B9D, #F59E0B)',
+    'linear-gradient(135deg, #06B6D4, #3B82F6)',
+  ];
+
+  // Fetch recent edits
+  useEffect(() => {
+    const fetchEdits = async () => {
+      const { data } = await supabase
+        .from('photo_edits')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (data) {
+        setRecentEdits(data.map((e, i) => ({
+          id: e.id,
+          name: e.original_url?.split('/').pop() || 'Untitled',
+          tool: e.tool_used || 'AI Edit',
+          time: new Date(e.created_at).toLocaleDateString(),
+          gradient: gradients[i % gradients.length],
+        })));
+      }
+    };
+    fetchEdits();
+  }, []);
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) return;
+    setSelectedFile(file);
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
   }, []);
+
+  const handleUploadAndTransform = async () => {
+    if (!selectedFile || !currentUser) return;
+    setUploading(true);
+    const filePath = `${currentUser.id}/${Date.now()}_${selectedFile.name}`;
+    const { error } = await supabase.storage.from('photos').upload(filePath, selectedFile);
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+      await supabase.from('photo_edits').insert({
+        user_id: currentUser.id,
+        original_url: publicUrl,
+        tool_used: 'AI Transform',
+        prompt_used: prompt || null,
+      });
+    }
+    setUploading(false);
+    setPreview(null);
+    setSelectedFile(null);
+  };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -67,11 +124,11 @@ const HomeScreen = () => {
       <header className="relative flex items-center justify-between px-6 pt-12 pb-4">
         <div>
           <p className="text-xs text-muted-foreground font-body">Good morning ✦</p>
-          <h1 className="font-display text-xl font-bold text-foreground">Welcome to AURA</h1>
+          <h1 className="font-display text-xl font-bold text-foreground">Welcome{currentUser?.name ? `, ${currentUser.name}` : ' to AURA'}</h1>
         </div>
-        <div className="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-sm text-obsidian" style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}>
-          A
-        </div>
+        <button onClick={signOut} className="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-sm text-obsidian" style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}>
+          {currentUser?.name?.[0]?.toUpperCase() || 'A'}
+        </button>
       </header>
 
       <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex-1 px-6 space-y-6">
@@ -116,15 +173,17 @@ const HomeScreen = () => {
             <div className="rounded-[20px] overflow-hidden" style={{ border: '2px solid rgba(201,168,76,0.25)' }}>
               <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
               <div className="p-4 flex gap-3">
-                <button onClick={() => setPreview(null)} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <button onClick={() => { setPreview(null); setSelectedFile(null); }} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   Remove
                 </button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="relative flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden"
+                  onClick={handleUploadAndTransform}
+                  disabled={uploading}
+                  className="relative flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden disabled:opacity-50"
                 >
-                  <span className="relative z-10">Transform This Photo →</span>
+                  <span className="relative z-10">{uploading ? 'Uploading...' : 'Transform This Photo →'}</span>
                   <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
                 </motion.button>
               </div>

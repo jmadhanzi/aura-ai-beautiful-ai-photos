@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnimatePresence } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/hooks/useAuth";
 
 import SplashScreen from "./pages/SplashScreen";
 import OnboardingHero from "./pages/OnboardingHero";
@@ -26,6 +28,7 @@ const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  useAuth(); // Initialize auth state listener
 
   return (
     <AnimatePresence mode="wait">
@@ -46,7 +49,13 @@ const AnimatedRoutes = () => {
         <Route path="/paywall/5" element={<PageTransition variant="paywall"><PlanSelection /></PageTransition>} />
         <Route path="/paywall/6" element={<PageTransition variant="paywall"><UrgencyTimer /></PageTransition>} />
         <Route path="/paywall/7" element={<PageTransition variant="paywall"><FreeTrialGuarantee /></PageTransition>} />
-        <Route path="/home" element={<PageTransition><HomeScreen /></PageTransition>} />
+        <Route path="/home" element={
+          <PageTransition>
+            <ProtectedRoute requirePro>
+              <HomeScreen />
+            </ProtectedRoute>
+          </PageTransition>
+        } />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
