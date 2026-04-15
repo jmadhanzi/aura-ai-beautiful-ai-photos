@@ -36,9 +36,9 @@ const LoginHub = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleSignIn = async () => {
+  const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
 
@@ -52,14 +52,13 @@ const LoginHub = () => {
       return;
     }
 
-    // Session set, navigate
     navigate('/paywall/1');
   };
 
   const handleClick = (p: (typeof providers)[number]) => {
-    if ('action' in p && p.action === 'google') {
-      handleGoogleSignIn();
-    } else if ('route' in p && p.route) {
+    if (p.action) {
+      handleOAuthSignIn(p.action);
+    } else if (p.route) {
       navigate(p.route);
     }
   };
