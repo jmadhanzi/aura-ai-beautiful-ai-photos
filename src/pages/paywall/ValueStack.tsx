@@ -44,7 +44,7 @@ const ValueStack = () => {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="flex flex-1 flex-col items-center w-full max-w-sm"
+        className="flex flex-1 flex-col items-center w-full max-w-sm relative z-10"
       >
         {/* Badge */}
         <motion.div variants={fadeUp} className="rounded-full px-4 py-1.5 mb-5" style={{ border: '1px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.06)' }}>

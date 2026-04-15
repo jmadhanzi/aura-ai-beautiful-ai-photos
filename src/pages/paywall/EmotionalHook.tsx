@@ -57,7 +57,7 @@ const EmotionalHook = () => {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="flex flex-1 flex-col items-center w-full max-w-sm"
+        className="flex flex-1 flex-col items-center w-full max-w-sm relative z-10"
       >
         {/* Top badge */}
         <motion.div
