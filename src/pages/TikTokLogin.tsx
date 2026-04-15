@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { ArrowLeft, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const TikTokIcon = () => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -11,26 +12,13 @@ const TikTokIcon = () => (
 
 const QrGrid = () => {
   const pattern = [
-    [1,1,1,0,1,1,1],
-    [1,0,1,0,1,0,1],
-    [1,1,1,0,1,1,1],
-    [0,0,0,1,0,0,0],
-    [1,1,1,0,1,1,1],
-    [1,0,1,0,1,0,1],
-    [1,1,1,0,1,1,1],
+    [1,1,1,0,1,1,1],[1,0,1,0,1,0,1],[1,1,1,0,1,1,1],
+    [0,0,0,1,0,0,0],[1,1,1,0,1,1,1],[1,0,1,0,1,0,1],[1,1,1,0,1,1,1],
   ];
   return (
     <div className="grid grid-cols-7 gap-[3px]" style={{ width: 100, height: 100 }}>
       {pattern.flat().map((cell, i) => (
-        <div
-          key={i}
-          className="rounded-[2px]"
-          style={{
-            backgroundColor: cell ? '#111' : '#fff',
-            width: '100%',
-            aspectRatio: '1',
-          }}
-        />
+        <div key={i} className="rounded-[2px]" style={{ backgroundColor: cell ? '#111' : '#fff', width: '100%', aspectRatio: '1' }} />
       ))}
     </div>
   );
@@ -41,88 +29,38 @@ const inputClass =
 
 const TikTokLogin = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleConnect = () => {
+    toast({ title: 'TikTok OAuth', description: 'TikTok OAuth requires additional configuration. Please use Email or Phone sign-in.' });
+    navigate('/login');
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-obsidian px-6 py-8">
-      {/* Back */}
-      <button
-        onClick={() => navigate('/login')}
-        className="flex items-center gap-2 text-sm text-muted-foreground mb-8 transition-colors hover:text-foreground"
-      >
+      <button onClick={() => navigate('/login')} className="flex items-center gap-2 text-sm text-muted-foreground mb-8 transition-colors hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Back
       </button>
-
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-1 flex-col items-center"
-      >
-        {/* Platform header */}
+      <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex flex-1 flex-col items-center">
         <motion.div variants={fadeUp} className="flex flex-col items-center gap-3 mb-8">
-          <div
-            className="flex items-center justify-center rounded-2xl"
-            style={{
-              width: 64,
-              height: 64,
-              backgroundColor: '#000',
-              boxShadow: '0 0 30px rgba(0,0,0,0.5)',
-            }}
-          >
+          <div className="flex items-center justify-center rounded-2xl" style={{ width: 64, height: 64, backgroundColor: '#000', boxShadow: '0 0 30px rgba(0,0,0,0.5)' }}>
             <TikTokIcon />
           </div>
           <h1 className="font-display text-[22px] font-bold text-foreground">Sign in with TikTok</h1>
           <p className="text-center text-sm text-muted-foreground max-w-xs">
-            Scan the QR code in the TikTok app, or enter your username
+            TikTok OAuth requires additional setup. Use Email or Phone for now.
           </p>
         </motion.div>
 
-        {/* QR Code card */}
-        <motion.div
-          variants={fadeUp}
-          className="w-full max-w-sm rounded-2xl p-6 flex flex-col items-center gap-4 mb-6"
-          style={{
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
-        >
-          <div className="rounded-xl bg-white p-3">
-            <QrGrid />
-          </div>
-          <p className="text-xs text-muted-foreground text-center">
-            Open TikTok → Profile → Scan QR Code
-          </p>
+        <motion.div variants={fadeUp} className="w-full max-w-sm rounded-2xl p-6 flex flex-col items-center gap-4 mb-6" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="rounded-xl bg-white p-3"><QrGrid /></div>
+          <p className="text-xs text-muted-foreground text-center">Open TikTok → Profile → Scan QR Code</p>
         </motion.div>
 
-        {/* OR divider */}
-        <motion.div variants={fadeUp} className="flex items-center gap-4 w-full max-w-sm mb-6">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">or use username</span>
-          <div className="flex-1 h-px bg-border" />
-        </motion.div>
-
-        {/* Form */}
-        <motion.div variants={fadeUp} className="flex flex-col gap-4 w-full max-w-sm mb-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-muted-foreground font-body">TikTok Username</label>
-            <input type="text" placeholder="@your_username" className={inputClass} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-muted-foreground font-body">Password</label>
-            <input type="password" placeholder="••••••••" className={inputClass} />
-          </div>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.button
-          variants={fadeUp}
-          onClick={() => navigate('/paywall/1')}
-          className="w-full max-w-sm rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95"
-        >
-          Connect TikTok Account →
+        <motion.button variants={fadeUp} onClick={handleConnect} className="w-full max-w-sm rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95">
+          Back to Login Options →
         </motion.button>
 
-        {/* Trust note */}
         <motion.div variants={fadeUp} className="flex items-center gap-2 mt-6 max-w-xs">
           <Shield className="h-4 w-4 text-muted-foreground shrink-0" />
           <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
