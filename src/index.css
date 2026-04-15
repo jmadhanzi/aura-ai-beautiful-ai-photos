@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -46,6 +46,79 @@
   }
   html {
     scroll-behavior: smooth;
+  }
+}
+
+/* ── Primary Button Gold Gradient + Shimmer ── */
+@layer components {
+  .btn-primary {
+    background: linear-gradient(135deg, #C9A84C 0%, #E8C97A 50%, #C9A84C 100%);
+    color: #07070F;
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.35) 45%,
+      rgba(255, 255, 255, 0.08) 55%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* Dark glass card styling */
+  .glass-card {
+    background: rgba(26, 26, 46, 1);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* Aurora background blobs */
+  .aurora-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    will-change: transform;
+    animation: auroraShift 6s ease-in-out infinite alternate;
+  }
+  .aurora-gold {
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%);
+    top: -10%; left: 20%;
+  }
+  .aurora-violet {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
+    top: 30%; right: -5%;
+    animation-delay: 2s;
+  }
+  .aurora-mint {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(0,229,195,0.08) 0%, transparent 70%);
+    bottom: 5%; left: -8%;
+    animation-delay: 4s;
+  }
+
+  /* GPU compositing for animated elements */
+  .gpu-accelerated {
+    will-change: transform;
+    transform: translateZ(0);
   }
 }
 
