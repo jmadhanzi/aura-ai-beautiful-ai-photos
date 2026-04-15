@@ -25,5 +25,5 @@ export const shimmer: Variants = {
 
 export const staggerContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.06 } },
 };
