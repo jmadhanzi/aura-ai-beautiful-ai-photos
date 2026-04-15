@@ -62,8 +62,7 @@ const BeforeAfterProof = () => {
             {rows.map((r) => (
               <div
                 key={r.feature}
-                className="grid grid-cols-[1fr_60px_80px] gap-2 items-center rounded-xl px-3 py-2.5"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}
+                className="grid grid-cols-[1fr_60px_80px] gap-2 items-center rounded-xl px-3 py-2.5 glass-card"
               >
                 <span className="text-xs text-foreground font-body">{r.feature}</span>
                 <div className="flex justify-center">

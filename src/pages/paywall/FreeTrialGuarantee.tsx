@@ -95,8 +95,7 @@ const FreeTrialGuarantee = () => {
           {guarantees.map((g) => (
             <div
               key={g.title}
-              className="rounded-2xl p-4 flex flex-col items-center text-center gap-2"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+              className="rounded-2xl p-4 flex flex-col items-center text-center gap-2 glass-card"
             >
               <span className="text-2xl">{g.icon}</span>
               <p className="text-xs font-body font-semibold text-foreground">{g.title}</p>

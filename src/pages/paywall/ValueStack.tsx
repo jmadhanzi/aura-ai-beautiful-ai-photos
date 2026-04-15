@@ -70,8 +70,7 @@ const ValueStack = () => {
               variants={itemVariant}
               initial="hidden"
               animate="visible"
-              className="flex items-center gap-3 rounded-xl px-3 py-3 overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}
+              className="flex items-center gap-3 rounded-xl px-3 py-3 overflow-hidden glass-card"
             >
               {/* Accent bar — grows from 0 height */}
               <motion.div
@@ -95,8 +94,7 @@ const ValueStack = () => {
         {/* Total value card */}
         <motion.div
           variants={fadeUp}
-          className="w-full rounded-2xl p-5 flex items-center justify-between mb-8"
-          style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.25)' }}
+          className="w-full rounded-2xl p-5 flex items-center justify-between mb-8 glass-card"
         >
           <div>
             <p className="text-xs text-muted-foreground font-body mb-1">Total Retail Value</p>
