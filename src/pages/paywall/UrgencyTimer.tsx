@@ -61,8 +61,7 @@ const UrgencyTimer = () => {
         {/* Urgency Header Card */}
         <motion.div
           variants={fadeUp}
-          className="w-full rounded-2xl p-5 mb-6 flex flex-col items-center gap-4"
-          style={{ background: 'rgba(255,107,157,0.04)', border: '1px solid rgba(255,107,157,0.15)' }}
+          className="w-full rounded-2xl p-5 mb-6 flex flex-col items-center gap-4 glass-card"
         >
           <p className="text-[11px] uppercase tracking-widest font-body font-semibold text-rose">⏳ Limited Offer · Ends In</p>
 
@@ -86,8 +85,7 @@ const UrgencyTimer = () => {
         {/* Price Breakdown */}
         <motion.div
           variants={fadeUp}
-          className="w-full rounded-2xl p-5 mb-6 flex items-center justify-between gap-3"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+          className="w-full rounded-2xl p-5 mb-6 flex items-center justify-between gap-3 glass-card"
         >
           <div className="text-center">
             <p className="text-lg text-muted-foreground line-through font-body">$155.88</p>
@@ -111,11 +109,7 @@ const UrgencyTimer = () => {
             {competitors.map((c) => (
               <div
                 key={c.name}
-                className="flex items-center justify-between rounded-xl px-4 py-2.5"
-                style={c.highlight
-                  ? { background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.3)' }
-                  : { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }
-                }
+                className={`flex items-center justify-between rounded-xl px-4 py-2.5 glass-card ${c.highlight ? '!border-gold/30' : ''}`}
               >
                 <span className="text-sm font-body text-foreground/80">
                   <span className="mr-2">{c.icon}</span>{c.name}
@@ -129,8 +123,7 @@ const UrgencyTimer = () => {
         {/* Social Proof Live Counter */}
         <motion.div
           variants={fadeUp}
-          className="w-full rounded-2xl p-4 mb-8 flex flex-col gap-2"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+          className="w-full rounded-2xl p-4 mb-8 flex flex-col gap-2 glass-card"
         >
           <div className="flex items-center gap-2 text-sm">
             <span className="h-2 w-2 rounded-full bg-mint animate-pulse" />

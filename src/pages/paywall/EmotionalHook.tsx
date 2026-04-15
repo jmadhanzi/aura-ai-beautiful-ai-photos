@@ -109,8 +109,7 @@ const EmotionalHook = () => {
           {stats.map((s) => (
             <div
               key={s.label}
-              className="flex-1 flex flex-col items-center gap-1 rounded-xl py-3 px-2"
-              style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.1)' }}
+              className="flex-1 flex flex-col items-center gap-1 rounded-xl py-3 px-2 glass-card"
             >
               <span className="font-display text-base font-bold text-gold">{s.value}</span>
               <span className="text-[9px] text-muted-foreground text-center leading-tight">{s.label}</span>

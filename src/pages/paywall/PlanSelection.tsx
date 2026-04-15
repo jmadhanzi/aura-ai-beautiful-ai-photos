@@ -81,11 +81,9 @@ const PlanSelection = () => {
                 variants={fadeUp}
                 whileHover={{ y: -3 }}
                 onClick={() => setSelectedPlan(plan.id)}
-                className="relative w-full rounded-2xl p-4 text-left transition-all"
+                className={`relative w-full rounded-2xl p-4 text-left transition-all glass-card ${selected ? '!border-gold/50' : ''}`}
                 style={{
-                  background: selected ? 'rgba(201,168,76,0.05)' : 'rgba(255,255,255,0.02)',
-                  border: selected ? '2px solid rgba(201,168,76,0.5)' : '2px solid rgba(255,255,255,0.06)',
-                  boxShadow: selected ? '0 0 20px rgba(201,168,76,0.1)' : 'none',
+                  boxShadow: selected ? '0 0 20px rgba(201,168,76,0.1), inset 0 1px 0 rgba(255,255,255,0.05)' : undefined,
                 }}
               >
                 {/* Pulsing gold glow when selected */}

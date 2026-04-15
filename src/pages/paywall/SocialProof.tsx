@@ -104,8 +104,7 @@ const SocialProof = () => {
               variants={reviewCardVariant}
               initial="hidden"
               animate="visible"
-              className="relative rounded-2xl p-5 overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              className="relative rounded-2xl p-5 overflow-hidden glass-card"
             >
               <span className="absolute top-2 left-4 font-display text-[72px] leading-none text-gold pointer-events-none select-none" style={{ opacity: 0.08 }}>"</span>
               <div className="flex items-center gap-3 mb-3 relative z-10">
