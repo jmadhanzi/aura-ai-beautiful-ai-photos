@@ -15,8 +15,8 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const providers = [
-  { label: 'Continue with Google', icon: GoogleIcon, action: 'google' as const, bg: 'bg-surface' },
+const providers: Array<{ label: string; icon: React.FC<any>; bg: string; route?: string; action?: 'google' }> = [
+  { label: 'Continue with Google', icon: GoogleIcon, action: 'google', bg: 'bg-surface' },
   { label: 'Continue with TikTok', icon: Music2, route: '/login/tiktok', bg: 'bg-surface' },
   { label: 'Continue with Facebook', icon: Facebook, route: '/login/facebook', bg: 'bg-surface' },
   { label: 'Continue with Instagram', icon: Instagram, route: '/login/instagram', bg: 'bg-surface' },
