@@ -37,12 +37,10 @@ const PlanSelection = () => {
     <div className="flex min-h-screen flex-col items-center bg-obsidian px-6 py-10 overflow-y-auto">
       <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex flex-col items-center w-full max-w-sm">
 
-        {/* Badge */}
         <motion.div variants={fadeUp} className="rounded-full px-4 py-1.5 mb-5" style={{ border: '1px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.06)' }}>
           <span className="text-xs font-body font-medium text-gold tracking-wide">✦ Choose Your Plan</span>
         </motion.div>
 
-        {/* Headline */}
         <motion.h1 variants={fadeUp} className="font-display text-[26px] font-black text-foreground text-center leading-tight mb-2">
           Transparent{' '}
           <em className="not-italic italic bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">pricing.</em>{' '}
@@ -59,9 +57,7 @@ const PlanSelection = () => {
               key={p}
               onClick={() => setPeriod(p)}
               className={`flex-1 rounded-full py-2 text-sm font-body font-medium transition-all ${
-                period === p
-                  ? 'text-gold'
-                  : 'text-muted-foreground'
+                period === p ? 'text-gold' : 'text-muted-foreground'
               }`}
               style={period === p ? { background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)' } : { border: '1px solid transparent' }}
             >
@@ -78,6 +74,7 @@ const PlanSelection = () => {
               <motion.button
                 key={plan.id}
                 variants={fadeUp}
+                whileHover={{ y: -3 }}
                 onClick={() => setSelectedPlan(plan.id)}
                 className="relative w-full rounded-2xl p-4 text-left transition-all"
                 style={{
@@ -86,7 +83,15 @@ const PlanSelection = () => {
                   boxShadow: selected ? '0 0 20px rgba(201,168,76,0.1)' : 'none',
                 }}
               >
-                {/* Best Value Badge */}
+                {/* Pulsing gold glow when selected */}
+                {selected && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl pointer-events-none"
+                    animate={{ boxShadow: ['0 0 15px rgba(201,168,76,0.08)', '0 0 25px rgba(201,168,76,0.18)', '0 0 15px rgba(201,168,76,0.08)'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                )}
+
                 {plan.badge && (
                   <div className="absolute -top-3 left-4 rounded-full px-3 py-0.5 bg-gradient-to-r from-gold to-gold-light">
                     <span className="text-[10px] font-body font-bold text-obsidian tracking-wide">{plan.badge}</span>
@@ -97,18 +102,13 @@ const PlanSelection = () => {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-body font-semibold text-foreground">{plan.name}</p>
                     <p className="text-[11px] text-muted-foreground mt-0.5">{plan.desc}</p>
-                    {plan.save && (
-                      <p className="text-[11px] text-mint font-semibold mt-1">{plan.save}</p>
-                    )}
+                    {plan.save && <p className="text-[11px] text-mint font-semibold mt-1">{plan.save}</p>}
                   </div>
-
                   <div className="flex items-center gap-3 shrink-0">
                     <div className="text-right">
                       <span className="font-display text-xl font-bold text-gold">{plan.price}</span>
                       <span className="text-xs text-muted-foreground">{plan.period}</span>
                     </div>
-
-                    {/* Radio */}
                     <div
                       className="h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0"
                       style={{
@@ -141,10 +141,13 @@ const PlanSelection = () => {
         {/* CTA */}
         <motion.button
           variants={fadeUp}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/paywall/6')}
-          className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian overflow-hidden"
         >
-          Start 3-Day Free Trial →
+          <span className="relative z-10">Start 3-Day Free Trial →</span>
+          <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
         </motion.button>
       </motion.div>
     </div>

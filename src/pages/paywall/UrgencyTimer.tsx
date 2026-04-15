@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { useCountdown } from '@/hooks/useCountdown';
-import { Check } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -14,9 +14,34 @@ const competitors = [
   { icon: '✦', name: 'AURA (today only)', price: '$49.99/year', highlight: true },
 ];
 
+/* Digit with scale-pop on change */
+const AnimatedDigit = ({ value }: { value: string }) => {
+  const prevRef = useRef(value);
+  const [pop, setPop] = useState(false);
+
+  useEffect(() => {
+    if (prevRef.current !== value) {
+      setPop(true);
+      prevRef.current = value;
+      const t = setTimeout(() => setPop(false), 200);
+      return () => clearTimeout(t);
+    }
+  }, [value]);
+
+  return (
+    <motion.span
+      animate={pop ? { scale: [1, 1.15, 1] } : {}}
+      transition={{ duration: 0.2 }}
+      className="font-mono text-[26px] font-bold text-foreground inline-block"
+    >
+      {value}
+    </motion.span>
+  );
+};
+
 const UrgencyTimer = () => {
   const navigate = useNavigate();
-  const { hours, minutes, seconds } = useCountdown(14 * 60 + 37); // 00:14:37
+  const { hours, minutes, seconds } = useCountdown(14 * 60 + 37);
 
   const timerUnits = [
     { label: 'Hours', value: pad(hours) },
@@ -36,13 +61,12 @@ const UrgencyTimer = () => {
         >
           <p className="text-[11px] uppercase tracking-widest font-body font-semibold text-rose">⏳ Limited Offer · Ends In</p>
 
-          {/* Countdown */}
           <div className="flex items-center gap-2">
             {timerUnits.map((u, i) => (
               <div key={u.label} className="flex items-center gap-2">
                 <div className="flex flex-col items-center">
                   <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,107,157,0.3)' }}>
-                    <span className="font-mono text-[26px] font-bold text-foreground">{u.value}</span>
+                    <AnimatedDigit value={u.value} />
                   </div>
                   <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">{u.label}</span>
                 </div>
@@ -120,10 +144,13 @@ const UrgencyTimer = () => {
         {/* Buttons */}
         <motion.button
           variants={fadeUp}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/paywall/7')}
-          className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95 mb-3"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian overflow-hidden mb-3"
         >
-          Claim My 68% Discount →
+          <span className="relative z-10">Claim My 68% Discount →</span>
+          <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
         </motion.button>
         <motion.button
           variants={fadeUp}
