@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { ChevronRight, ArrowUp, Home, Search, FolderOpen, Settings } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const quickTools = [
   { emoji: '✨', label: 'Skin' },
@@ -29,13 +29,13 @@ const tabs = [
 
 const HomeScreen = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(false);
+  const [hoverUpload, setHoverUpload] = useState(false);
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) return;
@@ -89,6 +89,8 @@ const HomeScreen = () => {
           {!preview ? (
             <div
               onClick={() => fileInputRef.current?.click()}
+              onMouseEnter={() => setHoverUpload(true)}
+              onMouseLeave={() => setHoverUpload(false)}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
@@ -96,10 +98,17 @@ const HomeScreen = () => {
               style={{
                 padding: '24px',
                 border: `2px dashed ${dragOver ? 'rgba(201,168,76,0.6)' : 'rgba(201,168,76,0.25)'}`,
-                background: dragOver ? 'rgba(201,168,76,0.08)' : 'rgba(201,168,76,0.04)',
+                background: dragOver || hoverUpload ? 'rgba(201,168,76,0.08)' : 'rgba(201,168,76,0.04)',
               }}
             >
-              <span className="text-[32px]">📷</span>
+              {/* Icon with bounce on hover */}
+              <motion.span
+                className="text-[32px]"
+                animate={hoverUpload ? { y: [0, -4, 0] } : { y: 0 }}
+                transition={hoverUpload ? { duration: 0.6, repeat: Infinity, ease: 'easeInOut' } : {}}
+              >
+                📷
+              </motion.span>
               <p className="text-sm font-body font-medium text-foreground">Upload a photo to transform</p>
               <p className="text-xs text-muted-foreground">Tap to select · or drag & drop</p>
             </div>
@@ -110,9 +119,14 @@ const HomeScreen = () => {
                 <button onClick={() => setPreview(null)} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   Remove
                 </button>
-                <button className="flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light">
-                  Transform This Photo →
-                </button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="relative flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden"
+                >
+                  <span className="relative z-10">Transform This Photo →</span>
+                  <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
+                </motion.button>
               </div>
             </div>
           )}
@@ -132,12 +146,14 @@ const HomeScreen = () => {
             placeholder="Try 'Make me look confident...'"
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none font-body"
           />
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={handlePromptSubmit}
             className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-r from-gold to-gold-light"
           >
             <ArrowUp className="h-4 w-4 text-obsidian" />
-          </button>
+          </motion.button>
         </motion.div>
 
         {/* AI Loading / Result */}
@@ -156,14 +172,15 @@ const HomeScreen = () => {
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Quick Tools</p>
           <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
             {quickTools.map((t) => (
-              <button
+              <motion.button
                 key={t.label}
-                className="flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3 shrink-0 transition-all hover:border-gold/40"
+                whileHover={{ borderColor: 'rgba(201,168,76,0.4)', y: -2 }}
+                className="flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3 shrink-0 transition-all"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', minWidth: '72px' }}
               >
                 <span className="text-lg">{t.emoji}</span>
                 <span className="text-[10px] font-body text-muted-foreground whitespace-nowrap">{t.label}</span>
-              </button>
+              </motion.button>
             ))}
           </div>
         </motion.div>
@@ -173,9 +190,10 @@ const HomeScreen = () => {
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Recent Edits</p>
           <div className="flex flex-col gap-2">
             {recentEdits.map((item) => (
-              <div
+              <motion.div
                 key={item.name}
-                className="flex items-center gap-3 rounded-2xl p-3 transition-all"
+                whileHover={{ x: 4 }}
+                className="flex items-center gap-3 rounded-2xl p-3 transition-all cursor-pointer"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="h-12 w-12 rounded-xl shrink-0" style={{ background: item.gradient }} />
@@ -184,7 +202,7 @@ const HomeScreen = () => {
                   <p className="text-[11px] text-muted-foreground">{item.tool} · {item.time}</p>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              </div>
+              </motion.div>
             ))}
           </div>
         </motion.div>
@@ -195,14 +213,15 @@ const HomeScreen = () => {
         {tabs.map((tab) => {
           const active = tab.label === 'Home';
           return (
-            <button
+            <motion.button
               key={tab.label}
+              whileTap={{ scale: 0.9 }}
               onClick={() => navigate(tab.path)}
               className="flex flex-col items-center gap-1"
             >
               <tab.icon className={`h-5 w-5 ${active ? 'text-gold' : 'text-muted-foreground'}`} />
               <span className={`text-[10px] font-body ${active ? 'text-gold font-semibold' : 'text-muted-foreground'}`}>{tab.label}</span>
-            </button>
+            </motion.button>
           );
         })}
       </nav>

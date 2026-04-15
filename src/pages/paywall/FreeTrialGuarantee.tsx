@@ -97,11 +97,14 @@ const FreeTrialGuarantee = () => {
 
         <motion.button
           variants={fadeUp}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={handleStart}
-          className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light font-body font-semibold text-obsidian transition-transform active:scale-95 mb-3"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light font-body font-semibold text-obsidian overflow-hidden mb-3"
           style={{ fontSize: '17px', padding: '18px' }}
         >
-          ✦ Start My Free Trial — No Risk
+          <span className="relative z-10">✦ Start My Free Trial — No Risk</span>
+          <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
         </motion.button>
 
         <motion.p variants={fadeUp} className="text-[10px] text-muted-foreground text-center leading-relaxed">

@@ -35,6 +35,8 @@ const LoginHub = () => {
             key={p.label}
             variants={fadeUp}
             custom={i}
+            whileHover={{ x: 4 }}
+            whileTap={{ x: 2, scale: 0.98 }}
             onClick={() => navigate(p.route)}
             className={`flex w-full items-center gap-3 rounded-xl ${p.bg} border border-border px-5 py-3.5 font-body font-medium text-foreground transition-colors hover:bg-card`}
           >

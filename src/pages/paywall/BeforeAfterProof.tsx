@@ -76,10 +76,13 @@ const BeforeAfterProof = () => {
         {/* CTA */}
         <motion.button
           variants={fadeUp}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/paywall/3')}
-          className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95 mt-auto"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian overflow-hidden mt-auto"
         >
-          I'm Convinced — Continue →
+          <span className="relative z-10">I'm Convinced — Continue →</span>
+          <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
         </motion.button>
       </motion.div>
     </div>

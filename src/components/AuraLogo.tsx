@@ -5,9 +5,11 @@ const AuraLogo = ({ size = 'default' }: { size?: 'default' | 'small' }) => {
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 110 * scale, height: 110 * scale }}>
-      {/* Ring 1 */}
-      <div
+      {/* Ring 1 — breathing scale */}
+      <motion.div
         className="absolute rounded-full animate-[spin_8s_linear_infinite]"
+        animate={{ scale: [1, 1.03, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         style={{
           width: 110 * scale,
           height: 110 * scale,

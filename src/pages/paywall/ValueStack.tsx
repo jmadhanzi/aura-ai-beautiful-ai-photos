@@ -22,6 +22,14 @@ const itemVariant = {
   }),
 };
 
+const accentBarVariant = {
+  hidden: { scaleY: 0 },
+  visible: (i: number) => ({
+    scaleY: 1,
+    transition: { delay: i * 0.08 + 0.2, duration: 0.3, ease: 'easeOut' as const },
+  }),
+};
+
 const ValueStack = () => {
   const navigate = useNavigate();
 
@@ -34,11 +42,7 @@ const ValueStack = () => {
         className="flex flex-1 flex-col items-center w-full max-w-sm"
       >
         {/* Badge */}
-        <motion.div
-          variants={fadeUp}
-          className="rounded-full px-4 py-1.5 mb-5"
-          style={{ border: '1px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.06)' }}
-        >
+        <motion.div variants={fadeUp} className="rounded-full px-4 py-1.5 mb-5" style={{ border: '1px solid rgba(201,168,76,0.3)', background: 'rgba(201,168,76,0.06)' }}>
           <span className="text-xs font-body font-medium text-gold tracking-wide">✦ Everything included</span>
         </motion.div>
 
@@ -48,7 +52,6 @@ const ValueStack = () => {
           <em className="not-italic italic bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">in your pocket</em>
         </motion.h1>
 
-        {/* Subtext */}
         <motion.p variants={fadeUp} className="text-sm text-muted-foreground text-center mb-6">
           Pro retouchers charge $50–200/hour for this. You get all of it.
         </motion.p>
@@ -65,16 +68,20 @@ const ValueStack = () => {
               className="flex items-center gap-3 rounded-xl px-3 py-3 overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}
             >
-              {/* Accent bar */}
-              <div className="w-[3px] self-stretch rounded-full shrink-0" style={{ backgroundColor: item.accent }} />
-              {/* Emoji */}
+              {/* Accent bar — grows from 0 height */}
+              <motion.div
+                custom={i}
+                variants={accentBarVariant}
+                initial="hidden"
+                animate="visible"
+                className="w-[3px] self-stretch rounded-full shrink-0 origin-top"
+                style={{ backgroundColor: item.accent }}
+              />
               <span className="text-lg shrink-0">{item.emoji}</span>
-              {/* Text */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-body font-semibold text-foreground truncate">{item.name}</p>
                 <p className="text-[11px] text-muted-foreground truncate">{item.desc}</p>
               </div>
-              {/* Price */}
               <span className="text-xs font-display font-bold text-gold shrink-0">{item.price}</span>
             </motion.div>
           ))}
@@ -84,10 +91,7 @@ const ValueStack = () => {
         <motion.div
           variants={fadeUp}
           className="w-full rounded-2xl p-5 flex items-center justify-between mb-8"
-          style={{
-            background: 'rgba(201,168,76,0.04)',
-            border: '1px solid rgba(201,168,76,0.25)',
-          }}
+          style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.25)' }}
         >
           <div>
             <p className="text-xs text-muted-foreground font-body mb-1">Total Retail Value</p>
@@ -102,10 +106,13 @@ const ValueStack = () => {
         {/* CTA */}
         <motion.button
           variants={fadeUp}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/paywall/4')}
-          className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95 mt-auto"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian overflow-hidden mt-auto"
         >
-          Get Everything for $4.17/mo →
+          <span className="relative z-10">Get Everything for $4.17/mo →</span>
+          <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
         </motion.button>
       </motion.div>
     </div>

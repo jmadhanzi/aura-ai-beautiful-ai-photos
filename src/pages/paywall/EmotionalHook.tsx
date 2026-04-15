@@ -77,46 +77,23 @@ const EmotionalHook = () => {
 
         {/* Transformation gallery */}
         <motion.div variants={fadeUp} className="flex items-center gap-3 mb-8 w-full justify-center">
-          {/* Before */}
           <div className="flex flex-col items-center gap-2">
             <div
               className="flex items-center justify-center rounded-2xl"
-              style={{
-                width: 110,
-                height: 140,
-                background: 'linear-gradient(135deg, #1a1030, #12121F)',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
+              style={{ width: 110, height: 140, background: 'linear-gradient(135deg, #1a1030, #12121F)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               <FaceWireframeBefore />
             </div>
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Before</span>
           </div>
-
-          {/* Arrow */}
           <span className="font-display text-2xl font-bold text-gold">→</span>
-
-          {/* After */}
           <div className="flex flex-col items-center gap-2">
             <div
               className="relative flex items-center justify-center rounded-2xl overflow-hidden"
-              style={{
-                width: 110,
-                height: 140,
-                background: 'linear-gradient(135deg, #1f1828, #1a1530)',
-                border: '1px solid rgba(201,168,76,0.15)',
-                boxShadow: '0 0 30px rgba(201,168,76,0.08)',
-              }}
+              style={{ width: 110, height: 140, background: 'linear-gradient(135deg, #1f1828, #1a1530)', border: '1px solid rgba(201,168,76,0.15)', boxShadow: '0 0 30px rgba(201,168,76,0.08)' }}
             >
               <FaceWireframeAfter />
-              {/* Shimmer overlay */}
-              <div
-                className="absolute inset-0 animate-shimmer"
-                style={{
-                  background: 'linear-gradient(105deg, transparent 40%, rgba(201,168,76,0.08) 50%, transparent 60%)',
-                  backgroundSize: '200% 100%',
-                }}
-              />
+              <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(201,168,76,0.08) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
             </div>
             <span className="text-[10px] text-gold font-semibold uppercase tracking-wider">After AURA ✦</span>
           </div>
@@ -140,10 +117,7 @@ const EmotionalHook = () => {
         <motion.div variants={fadeUp} className="flex items-center gap-3 mb-8 w-full">
           <div className="flex -space-x-2">
             {avatarColors.map((c, i) => (
-              <div
-                key={i}
-                className={`h-8 w-8 rounded-full bg-gradient-to-br ${c} border-2 border-obsidian`}
-              />
+              <div key={i} className={`h-8 w-8 rounded-full bg-gradient-to-br ${c} border-2 border-obsidian`} />
             ))}
           </div>
           <div className="flex-1">
@@ -160,18 +134,22 @@ const EmotionalHook = () => {
 
         {/* CTAs */}
         <motion.div variants={fadeUp} className="flex flex-col items-center gap-3 w-full mt-auto">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/paywall/2')}
-            className="w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian transition-transform active:scale-95"
+            className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian overflow-hidden"
           >
-            Unlock My Best Self →
-          </button>
-          <button
+            <span className="relative z-10">Unlock My Best Self →</span>
+            <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
+          </motion.button>
+          <motion.button
+            whileHover={{ opacity: 1 }}
             onClick={() => navigate('/paywall/3')}
-            className="font-body text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="font-body text-sm text-muted-foreground transition-all hover:text-foreground hover:border-b hover:border-foreground/20"
           >
             See what's included first
-          </button>
+          </motion.button>
         </motion.div>
       </motion.div>
     </div>
