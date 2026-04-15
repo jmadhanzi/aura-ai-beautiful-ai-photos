@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AnimatePresence } from "framer-motion";
+import PageTransition from "@/components/PageTransition";
 
 import SplashScreen from "./pages/SplashScreen";
 import OnboardingHero from "./pages/OnboardingHero";
@@ -22,32 +24,42 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><SplashScreen /></PageTransition>} />
+        <Route path="/onboarding/1" element={<PageTransition><OnboardingHero /></PageTransition>} />
+        <Route path="/onboarding/2" element={<PageTransition><OnboardingFeatures /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><LoginHub /></PageTransition>} />
+        <Route path="/login/tiktok" element={<PageTransition><TikTokLogin /></PageTransition>} />
+        <Route path="/login/facebook" element={<PageTransition><FacebookLogin /></PageTransition>} />
+        <Route path="/login/instagram" element={<PageTransition><InstagramLogin /></PageTransition>} />
+        <Route path="/login/phone" element={<PageTransition><PhoneLogin /></PageTransition>} />
+        <Route path="/login/email" element={<PageTransition><EmailLogin /></PageTransition>} />
+        <Route path="/paywall/1" element={<PageTransition variant="paywall"><EmotionalHook /></PageTransition>} />
+        <Route path="/paywall/2" element={<PageTransition variant="paywall"><BeforeAfterProof /></PageTransition>} />
+        <Route path="/paywall/3" element={<PageTransition variant="paywall"><ValueStack /></PageTransition>} />
+        <Route path="/paywall/4" element={<PageTransition variant="paywall"><SocialProof /></PageTransition>} />
+        <Route path="/paywall/5" element={<PageTransition variant="paywall"><PlanSelection /></PageTransition>} />
+        <Route path="/paywall/6" element={<PageTransition variant="paywall"><UrgencyTimer /></PageTransition>} />
+        <Route path="/paywall/7" element={<PageTransition variant="paywall"><FreeTrialGuarantee /></PageTransition>} />
+        <Route path="/home" element={<PageTransition><HomeScreen /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<SplashScreen />} />
-          <Route path="/onboarding/1" element={<OnboardingHero />} />
-          <Route path="/onboarding/2" element={<OnboardingFeatures />} />
-          <Route path="/login" element={<LoginHub />} />
-          <Route path="/login/tiktok" element={<TikTokLogin />} />
-          <Route path="/login/facebook" element={<FacebookLogin />} />
-          <Route path="/login/instagram" element={<InstagramLogin />} />
-          <Route path="/login/phone" element={<PhoneLogin />} />
-          <Route path="/login/email" element={<EmailLogin />} />
-          <Route path="/paywall/1" element={<EmotionalHook />} />
-          <Route path="/paywall/2" element={<BeforeAfterProof />} />
-          <Route path="/paywall/3" element={<ValueStack />} />
-          <Route path="/paywall/4" element={<SocialProof />} />
-          <Route path="/paywall/5" element={<PlanSelection />} />
-          <Route path="/paywall/6" element={<UrgencyTimer />} />
-          <Route path="/paywall/7" element={<FreeTrialGuarantee />} />
-          <Route path="/home" element={<HomeScreen />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AnimatedRoutes />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
