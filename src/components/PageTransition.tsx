@@ -6,29 +6,14 @@ interface PageTransitionProps {
   variant?: 'default' | 'paywall';
 }
 
-const variants = {
-  default: {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
-    transition: { duration: 0.35, ease: 'easeOut' },
-  },
-  paywall: {
-    initial: { opacity: 0, y: 20, scale: 0.97 },
-    animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: -10, scale: 0.98 },
-    transition: { duration: 0.35, ease: 'easeOut' },
-  },
-};
-
 const PageTransition = ({ children, variant = 'default' }: PageTransitionProps) => {
-  const v = variants[variant];
+  const isPaywall = variant === 'paywall';
   return (
     <motion.div
-      initial={v.initial}
-      animate={v.animate}
-      exit={v.exit}
-      transition={v.transition}
+      initial={{ opacity: 0, y: 20, ...(isPaywall && { scale: 0.97 }) }}
+      animate={{ opacity: 1, y: 0, ...(isPaywall && { scale: 1 }) }}
+      exit={{ opacity: 0, y: -10, ...(isPaywall && { scale: 0.98 }) }}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
       className="min-h-screen"
     >
       {children}
