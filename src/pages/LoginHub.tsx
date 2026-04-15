@@ -87,7 +87,7 @@ const LoginHub = () => {
             whileHover={{ x: 4 }}
             whileTap={{ x: 2, scale: 0.98 }}
             onClick={() => handleClick(p)}
-            disabled={p.action === 'google' && loading}
+            disabled={!!p.action && loading}
             className={`flex w-full items-center gap-3 rounded-xl ${p.bg} border border-border px-5 py-3.5 font-body font-medium text-foreground transition-colors hover:bg-card disabled:opacity-50`}
           >
             <p.icon className="h-5 w-5 text-muted-foreground" />
