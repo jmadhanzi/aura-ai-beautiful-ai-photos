@@ -104,7 +104,7 @@ const UrgencyTimer = () => {
           style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
         >
           <div className="flex items-center gap-2 text-sm">
-            <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-mint animate-pulse" />
             <span className="text-foreground/80 font-body">312 people are viewing this offer</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
