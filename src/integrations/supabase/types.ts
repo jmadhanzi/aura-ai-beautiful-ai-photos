@@ -14,7 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      photo_edits: {
+        Row: {
+          created_at: string
+          edited_url: string | null
+          id: string
+          original_url: string | null
+          prompt_used: string | null
+          tool_used: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          edited_url?: string | null
+          id?: string
+          original_url?: string | null
+          prompt_used?: string | null
+          tool_used?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          edited_url?: string | null
+          id?: string
+          original_url?: string | null
+          prompt_used?: string | null
+          tool_used?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_edits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          is_pro: boolean
+          plan_type: string | null
+          trial_started_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          is_pro?: boolean
+          plan_type?: string | null
+          trial_started_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_pro?: boolean
+          plan_type?: string | null
+          trial_started_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
