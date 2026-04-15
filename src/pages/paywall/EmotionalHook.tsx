@@ -47,12 +47,17 @@ const EmotionalHook = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-obsidian px-6 py-10 overflow-hidden">
+    <div className="relative flex min-h-screen flex-col items-center bg-obsidian px-6 py-10 overflow-hidden">
+      <div className="aurora-bg">
+        <div className="aurora-blob aurora-gold" />
+        <div className="aurora-blob aurora-violet" />
+        <div className="aurora-blob aurora-mint" />
+      </div>
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="flex flex-1 flex-col items-center w-full max-w-sm"
+        className="flex flex-1 flex-col items-center w-full max-w-sm relative z-10"
       >
         {/* Top badge */}
         <motion.div
