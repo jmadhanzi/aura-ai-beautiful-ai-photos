@@ -5,6 +5,7 @@ import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { Smartphone, Mail, Music2, Facebook, Instagram } from 'lucide-react';
 import { lovable } from '@/integrations/lovable/index';
 import { useToast } from '@/hooks/use-toast';
+import { useAppStore } from '@/store/useAppStore';
 
 const AppleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -99,6 +100,23 @@ const LoginHub = () => {
           By continuing, you agree to our Terms & Privacy Policy
         </motion.p>
       </motion.div>
+
+      {/* Dev bypass */}
+      {import.meta.env.DEV && (
+        <button
+          onClick={() => {
+            const { setCurrentUser, setIsProUser, setOnboardingComplete } = useAppStore.getState();
+            setCurrentUser({ id: 'dev-user', name: 'Dev User', email: 'dev@aura.app' });
+            setIsProUser(true);
+            setOnboardingComplete(true);
+            navigate('/home', { replace: true });
+          }}
+          className="absolute bottom-8 right-6 z-20 rounded-lg px-3 py-1.5 text-[10px] font-mono opacity-40 hover:opacity-100 transition-opacity"
+          style={{ background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C' }}
+        >
+          DEV → /home
+        </button>
+      )}
     </div>
   );
 };
