@@ -55,6 +55,14 @@
     --glow-top: rgba(201,168,76,0.08);
     --badge-bg: rgba(201,168,76,0.06);
     --badge-border: rgba(201,168,76,0.3);
+    --subtle-bg: rgba(255,255,255,0.02);
+    --subtle-border: rgba(255,255,255,0.06);
+    --subtle-bg-hover: rgba(255,255,255,0.04);
+    --navbar-bg: rgba(7,7,15,0.95);
+    --gold-tint-bg: rgba(201,168,76,0.04);
+    --gold-tint-border: rgba(201,168,76,0.15);
+    --qr-card-bg: rgba(255,255,255,0.06);
+    --qr-card-border: rgba(255,255,255,0.08);
   }
 
   .light {
