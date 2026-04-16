@@ -118,7 +118,7 @@ const HomeScreen = () => {
   return (
     <div className="flex min-h-screen flex-col bg-obsidian pb-20">
       {/* Top glow */}
-      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top, rgba(201,168,76,0.08) 0%, transparent 70%)' }} />
+      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: `radial-gradient(ellipse at top, var(--glow-top) 0%, transparent 70%)` }} />
 
       {/* Header */}
       <header className="relative flex items-center justify-between px-6 pt-12 pb-4">
@@ -154,11 +154,10 @@ const HomeScreen = () => {
               className="flex flex-col items-center justify-center gap-3 rounded-[20px] cursor-pointer transition-all"
               style={{
                 padding: '24px',
-                border: `2px dashed ${dragOver ? 'rgba(201,168,76,0.6)' : 'rgba(201,168,76,0.25)'}`,
-                background: dragOver || hoverUpload ? 'rgba(201,168,76,0.08)' : 'rgba(201,168,76,0.04)',
+                border: `2px dashed ${dragOver ? 'rgba(201,168,76,0.6)' : 'var(--surface-upload-border)'}`,
+                background: dragOver || hoverUpload ? 'var(--surface-upload-bg)' : 'var(--gold-tint-bg)',
               }}
             >
-              {/* Icon with bounce on hover */}
               <motion.span
                 className="text-[32px]"
                 animate={hoverUpload ? { y: [0, -4, 0] } : { y: 0 }}
@@ -170,10 +169,10 @@ const HomeScreen = () => {
               <p className="text-xs text-muted-foreground">Tap to select · or drag & drop</p>
             </div>
           ) : (
-            <div className="rounded-[20px] overflow-hidden" style={{ border: '2px solid rgba(201,168,76,0.25)' }}>
+            <div className="rounded-[20px] overflow-hidden" style={{ border: `2px solid var(--surface-upload-border)` }}>
               <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
               <div className="p-4 flex gap-3">
-                <button onClick={() => { setPreview(null); setSelectedFile(null); }} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <button onClick={() => { setPreview(null); setSelectedFile(null); }} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)` }}>
                   Remove
                 </button>
                 <motion.button
@@ -195,7 +194,7 @@ const HomeScreen = () => {
         <motion.div
           variants={fadeUp}
           className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #C9A84C' }}
+          style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)`, borderLeft: '3px solid #C9A84C' }}
         >
           <span className="text-lg shrink-0">✨</span>
           <input
@@ -217,10 +216,10 @@ const HomeScreen = () => {
 
         {/* AI Loading / Result */}
         {aiLoading && (
-          <div className="rounded-2xl h-16 overflow-hidden" style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.05) 0%, rgba(201,168,76,0.15) 50%, rgba(201,168,76,0.05) 100%)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite', border: '1px solid rgba(201,168,76,0.1)' }} />
+          <div className="rounded-2xl h-16 overflow-hidden" style={{ background: 'linear-gradient(90deg, var(--gold-tint-bg) 0%, var(--gold-tint-border) 50%, var(--gold-tint-bg) 100%)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite', border: `1px solid var(--gold-tint-border)` }} />
         )}
         {aiResult && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-4" style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.15)' }}>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-4" style={{ background: 'var(--gold-tint-bg)', border: `1px solid var(--gold-tint-border)` }}>
             <p className="text-xs text-gold font-body font-semibold mb-1">✦ AI Result</p>
             <p className="text-sm text-foreground/80 font-body">Applied "confident" preset — enhanced jawline definition, brightened eyes, subtle warm color grade. Ready to export!</p>
           </motion.div>
@@ -235,7 +234,7 @@ const HomeScreen = () => {
                 key={t.label}
                 whileHover={{ borderColor: 'rgba(201,168,76,0.4)', y: -2 }}
                 className="flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3 shrink-0 transition-all"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', minWidth: '72px' }}
+                style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)`, minWidth: '72px' }}
               >
                 <span className="text-lg">{t.emoji}</span>
                 <span className="text-[10px] font-body text-muted-foreground whitespace-nowrap">{t.label}</span>
@@ -253,7 +252,7 @@ const HomeScreen = () => {
                 key={item.name}
                 whileHover={{ x: 4 }}
                 className="flex items-center gap-3 rounded-2xl p-3 transition-all cursor-pointer"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)` }}
               >
                 <div className="h-12 w-12 rounded-xl shrink-0" style={{ background: item.gradient }} />
                 <div className="flex-1 min-w-0">
@@ -268,7 +267,7 @@ const HomeScreen = () => {
       </motion.div>
 
       {/* Bottom Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-3 px-4" style={{ background: 'rgba(7,7,15,0.95)', borderTop: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
+      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-3 px-4" style={{ background: 'var(--navbar-bg)', borderTop: `1px solid var(--subtle-border)`, backdropFilter: 'blur(20px)' }}>
         {tabs.map((tab) => {
           const active = tab.label === 'Home';
           return (

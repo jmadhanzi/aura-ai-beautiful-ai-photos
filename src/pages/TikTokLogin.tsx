@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const TikTokIcon = () => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <path d="M22.2 8.6A5.6 5.6 0 0 1 18.8 4h-3.6v17.2a3.4 3.4 0 1 1-2.4-3.26V14.3a7 7 0 1 0 6 6.92V13.4a9.2 9.2 0 0 0 5.4 1.74V11.5a5.6 5.6 0 0 1-2-2.9Z" fill="white"/>
+    <path d="M22.2 8.6A5.6 5.6 0 0 1 18.8 4h-3.6v17.2a3.4 3.4 0 1 1-2.4-3.26V14.3a7 7 0 1 0 6 6.92V13.4a9.2 9.2 0 0 0 5.4 1.74V11.5a5.6 5.6 0 0 1-2-2.9Z" fill="currentColor"/>
   </svg>
 );
 
@@ -24,9 +24,6 @@ const QrGrid = () => {
   );
 };
 
-const inputClass =
-  "w-full rounded-xl bg-surface border border-border px-4 py-3.5 font-body text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-[rgba(201,168,76,0.5)] focus:shadow-[0_0_0_3px_rgba(201,168,76,0.1)]";
-
 const TikTokLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -43,7 +40,7 @@ const TikTokLogin = () => {
       </button>
       <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex flex-1 flex-col items-center">
         <motion.div variants={fadeUp} className="flex flex-col items-center gap-3 mb-8">
-          <div className="flex items-center justify-center rounded-2xl" style={{ width: 64, height: 64, backgroundColor: '#000', boxShadow: '0 0 30px rgba(0,0,0,0.5)' }}>
+          <div className="flex items-center justify-center rounded-2xl text-foreground" style={{ width: 64, height: 64, background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)` }}>
             <TikTokIcon />
           </div>
           <h1 className="font-display text-[22px] font-bold text-foreground">Sign in with TikTok</h1>
@@ -52,7 +49,7 @@ const TikTokLogin = () => {
           </p>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="w-full max-w-sm rounded-2xl p-6 flex flex-col items-center gap-4 mb-6" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <motion.div variants={fadeUp} className="w-full max-w-sm rounded-2xl p-6 flex flex-col items-center gap-4 mb-6" style={{ background: 'var(--qr-card-bg)', border: `1px solid var(--qr-card-border)` }}>
           <div className="rounded-xl bg-white p-3"><QrGrid /></div>
           <p className="text-xs text-muted-foreground text-center">Open TikTok → Profile → Scan QR Code</p>
         </motion.div>
