@@ -141,7 +141,7 @@ export const EmailLogin = () => {
   );
 };
 
-// OAuth placeholder pages (TikTok, Facebook, Instagram not natively supported by Lovable Cloud)
+// OAuth placeholder pages
 const OAuthPlaceholder = ({ title, provider }: { title: string; provider: string }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
