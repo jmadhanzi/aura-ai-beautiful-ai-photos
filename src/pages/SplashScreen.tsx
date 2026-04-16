@@ -10,14 +10,17 @@ const SplashScreen = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const devBypass = () => {
+    const { setCurrentUser, setIsProUser, setOnboardingComplete } = useAppStore.getState();
+    setCurrentUser({ id: 'dev-user', name: 'Dev User', email: 'dev@aura.app' });
+    setIsProUser(true);
+    setOnboardingComplete(true);
+    navigate('/home', { replace: true });
+  };
+
   useEffect(() => {
-    // Dev bypass: /?dev=1 skips everything and goes to /home
     if (DEV_BYPASS && searchParams.get('dev') === '1') {
-      const { setCurrentUser, setIsProUser, setOnboardingComplete } = useAppStore.getState();
-      setCurrentUser({ id: 'dev-user', name: 'Dev User', email: 'dev@aura.app' });
-      setIsProUser(true);
-      setOnboardingComplete(true);
-      navigate('/home', { replace: true });
+      devBypass();
       return;
     }
     const timer = setTimeout(() => navigate('/onboarding/1'), 2500);
