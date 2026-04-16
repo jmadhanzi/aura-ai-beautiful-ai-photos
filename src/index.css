@@ -36,6 +36,8 @@
     --sidebar-ring: 43 50% 54%;
     /* Theme-aware surfaces */
     --obsidian: #07070F;
+    --deep: #0D0D1A;
+    --surface: #12121F;
     --surface-glass: rgba(26, 26, 46, 1);
     --surface-glass-border: rgba(255, 255, 255, 0.07);
     --surface-glass-highlight: rgba(255, 255, 255, 0.05);
@@ -84,6 +86,8 @@
     --sidebar-border: 40 10% 85%;
     --sidebar-ring: 43 50% 44%;
     --obsidian: #F5F0E8;
+    --deep: #EDE8DE;
+    --surface: #F0EBE3;
     --surface-glass: rgba(255, 255, 255, 0.85);
     --surface-glass-border: rgba(0, 0, 0, 0.08);
     --surface-glass-highlight: rgba(255, 255, 255, 0.6);
