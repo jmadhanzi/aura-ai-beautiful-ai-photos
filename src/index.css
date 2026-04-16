@@ -36,6 +36,8 @@
     --sidebar-ring: 43 50% 54%;
     /* Theme-aware surfaces */
     --obsidian: #07070F;
+    --deep: #0D0D1A;
+    --surface: #12121F;
     --surface-glass: rgba(26, 26, 46, 1);
     --surface-glass-border: rgba(255, 255, 255, 0.07);
     --surface-glass-highlight: rgba(255, 255, 255, 0.05);
@@ -44,6 +46,15 @@
     --scrollbar-track: #07070F;
     --scrollbar-thumb: #C9A84C;
     --scrollbar-thumb-hover: #E8C97A;
+    --tagline-color: rgba(255, 255, 255, 0.45);
+    --face-canvas-bg: linear-gradient(135deg, #1a1030, #12121F, #1a1030);
+    --face-canvas-shadow: 0 0 60px rgba(201,168,76,0.12), 0 0 120px rgba(139,92,246,0.08);
+    --aurora-gold-opacity: 0.18;
+    --aurora-violet-opacity: 0.12;
+    --aurora-mint-opacity: 0.08;
+    --glow-top: rgba(201,168,76,0.08);
+    --badge-bg: rgba(201,168,76,0.06);
+    --badge-border: rgba(201,168,76,0.3);
   }
 
   .light {
@@ -75,6 +86,8 @@
     --sidebar-border: 40 10% 85%;
     --sidebar-ring: 43 50% 44%;
     --obsidian: #F5F0E8;
+    --deep: #EDE8DE;
+    --surface: #F0EBE3;
     --surface-glass: rgba(255, 255, 255, 0.85);
     --surface-glass-border: rgba(0, 0, 0, 0.08);
     --surface-glass-highlight: rgba(255, 255, 255, 0.6);
@@ -83,6 +96,15 @@
     --scrollbar-track: #F5F0E8;
     --scrollbar-thumb: #B8962E;
     --scrollbar-thumb-hover: #C9A84C;
+    --tagline-color: rgba(80, 60, 20, 0.55);
+    --face-canvas-bg: linear-gradient(135deg, #E8E0D0, #F0EBE3, #E8E0D0);
+    --face-canvas-shadow: 0 0 60px rgba(201,168,76,0.08), 0 4px 20px rgba(0,0,0,0.06);
+    --aurora-gold-opacity: 0.1;
+    --aurora-violet-opacity: 0.06;
+    --aurora-mint-opacity: 0.04;
+    --glow-top: rgba(201,168,76,0.05);
+    --badge-bg: rgba(201,168,76,0.08);
+    --badge-border: rgba(180,150,60,0.25);
   }
 }
 
@@ -148,18 +170,18 @@
   }
   .aurora-gold {
     width: 340px; height: 340px;
-    background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(201,168,76,var(--aurora-gold-opacity)) 0%, transparent 70%);
     top: -10%; left: 20%;
   }
   .aurora-violet {
     width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(139,92,246,var(--aurora-violet-opacity)) 0%, transparent 70%);
     top: 30%; right: -5%;
     animation-delay: 2s;
   }
   .aurora-mint {
     width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(0,229,195,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0,229,195,var(--aurora-mint-opacity)) 0%, transparent 70%);
     bottom: 5%; left: -8%;
     animation-delay: 4s;
   }

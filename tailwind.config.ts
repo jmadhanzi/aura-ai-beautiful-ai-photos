@@ -23,8 +23,8 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         obsidian: 'var(--obsidian)',
-        deep: '#0D0D1A',
-        surface: '#12121F',
+        deep: 'var(--deep)',
+        surface: 'var(--surface)',
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

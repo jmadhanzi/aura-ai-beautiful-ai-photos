@@ -33,8 +33,7 @@ const OnboardingHero = () => {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="flex flex-col items-center rounded-xl px-5 py-2.5"
-            style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }}
+            className="flex flex-col items-center rounded-xl px-5 py-2.5 glass-card"
           >
             <span className="font-display text-lg font-bold text-gold">{s.value}</span>
             <span className="text-[10px] font-body uppercase tracking-widest text-muted-foreground">{s.label}</span>

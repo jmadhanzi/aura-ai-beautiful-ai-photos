@@ -10,9 +10,9 @@ const FaceCanvas = () => {
           width: 200,
           height: 240,
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #1a1030, #12121F, #1a1030)',
+          background: 'var(--face-canvas-bg)',
           border: '1px solid rgba(201,168,76,0.2)',
-          boxShadow: '0 0 60px rgba(201,168,76,0.12), 0 0 120px rgba(139,92,246,0.08)',
+          boxShadow: 'var(--face-canvas-shadow)',
         }}
       >
         {/* SVG Face wireframe */}
@@ -45,7 +45,7 @@ const FaceCanvas = () => {
         />
       </div>
 
-      {/* Floating badges with float animation */}
+      {/* Floating badges */}
       <Badge label="✨ AI Enhanced" className="-top-2 -right-16" delay={0.6} floatDelay={0} />
       <Badge label="📐 68 Points" className="-bottom-2 -left-14" delay={0.8} floatDelay={1} />
       <Badge label="🔒 Private" className="top-1/2 -right-16 -translate-y-1/2" delay={1.0} floatDelay={2} />
@@ -69,8 +69,8 @@ const Badge = ({ label, className, delay, floatDelay }: { label: string; classNa
     className={`absolute whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-body font-medium ${className}`}
     style={{
       color: '#C9A84C',
-      border: '1px solid rgba(201,168,76,0.3)',
-      background: 'rgba(201,168,76,0.06)',
+      border: '1px solid var(--badge-border)',
+      background: 'var(--badge-bg)',
       backdropFilter: 'blur(12px)',
     }}
   >
