@@ -29,7 +29,7 @@ const tabs = [
   { icon: Home, label: 'Home', path: '/home' },
   { icon: Search, label: 'Explore', path: '/home' },
   { icon: FolderOpen, label: 'History', path: '/home' },
-  { icon: Settings, label: 'Settings', path: '/home' },
+  { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
 const HomeScreen = () => {

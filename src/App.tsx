@@ -22,6 +22,7 @@ import PlanSelection from "./pages/paywall/PlanSelection";
 import UrgencyTimer from "./pages/paywall/UrgencyTimer";
 import FreeTrialGuarantee from "./pages/paywall/FreeTrialGuarantee";
 import HomeScreen from "./pages/HomeScreen";
+import SettingsScreen from "./pages/SettingsScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,13 @@ const AnimatedRoutes = () => {
           <PageTransition>
             <ProtectedRoute requirePro>
               <HomeScreen />
+            </ProtectedRoute>
+          </PageTransition>
+        } />
+        <Route path="/settings" element={
+          <PageTransition>
+            <ProtectedRoute>
+              <SettingsScreen />
             </ProtectedRoute>
           </PageTransition>
         } />
