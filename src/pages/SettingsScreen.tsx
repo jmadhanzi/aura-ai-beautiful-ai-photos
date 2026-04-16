@@ -6,7 +6,8 @@ import { useAppStore } from '@/store/useAppStore';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { User, Crown, Shield, HelpCircle, LogOut, ChevronRight, Home, Search, FolderOpen, Settings, Camera, X, Check, Pencil } from 'lucide-react';
+import { User, Crown, Shield, HelpCircle, LogOut, ChevronRight, Home, Search, FolderOpen, Settings, Camera, X, Check, Pencil, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 
 const planLabels: Record<string, string> = {
   weekly: '$4.99/week',
@@ -26,6 +27,7 @@ const SettingsScreen = () => {
   const { currentUser, signOut } = useAuth();
   const { isProUser, selectedPlan, setCurrentUser } = useAppStore();
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(currentUser?.name || '');
@@ -226,6 +228,26 @@ const SettingsScreen = () => {
               </div>
             )}
           </div>
+        </motion.div>
+
+        {/* Theme Toggle */}
+        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-4 flex items-center gap-3">
+          {theme === 'dark' ? <Moon className="h-5 w-5 text-muted-foreground" /> : <Sun className="h-5 w-5 text-gold" />}
+          <span className="flex-1 text-sm font-body font-medium text-foreground">
+            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+          </span>
+          <button
+            onClick={toggleTheme}
+            className="relative h-7 w-12 rounded-full transition-colors duration-300"
+            style={{ background: theme === 'dark' ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.5)' }}
+          >
+            <motion.div
+              className="absolute top-0.5 h-6 w-6 rounded-full"
+              style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}
+              animate={{ left: theme === 'dark' ? '2px' : '22px' }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            />
+          </button>
         </motion.div>
 
         {/* Menu Items */}
