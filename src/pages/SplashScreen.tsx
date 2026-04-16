@@ -12,13 +12,13 @@ const SplashScreen = () => {
   }, [navigate]);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: '#07070F' }}>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-obsidian">
       {/* Aurora background */}
       <div className="pointer-events-none absolute inset-0 animate-[auroraShift_6s_ease-in-out_infinite_alternate]" style={{
         background: `
-          radial-gradient(ellipse 60% 50% at 50% 10%, rgba(201,168,76,0.18) 0%, transparent 60%),
-          radial-gradient(ellipse 50% 60% at 15% 90%, rgba(139,92,246,0.12) 0%, transparent 55%),
-          radial-gradient(ellipse 45% 50% at 85% 50%, rgba(0,229,195,0.08) 0%, transparent 55%)
+          radial-gradient(ellipse 60% 50% at 50% 10%, rgba(201,168,76,var(--aurora-gold-opacity)) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 60% at 15% 90%, rgba(139,92,246,var(--aurora-violet-opacity)) 0%, transparent 55%),
+          radial-gradient(ellipse 45% 50% at 85% 50%, rgba(0,229,195,var(--aurora-mint-opacity)) 0%, transparent 55%)
         `,
       }} />
 
@@ -57,7 +57,7 @@ const SplashScreen = () => {
           style={{
             fontSize: 13,
             fontWeight: 300,
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--tagline-color)',
             letterSpacing: '0.25em',
             textTransform: 'uppercase',
           }}
