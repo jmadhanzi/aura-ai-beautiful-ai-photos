@@ -107,7 +107,7 @@ const SettingsScreen = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-obsidian pb-20">
-      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top, rgba(201,168,76,0.08) 0%, transparent 70%)' }} />
+      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: `radial-gradient(ellipse at top, var(--glow-top) 0%, transparent 70%)` }} />
 
       <header className="relative px-6 pt-12 pb-6">
         <h1 className="font-display text-xl font-bold text-foreground">Settings</h1>
@@ -286,7 +286,7 @@ const SettingsScreen = () => {
       </motion.div>
 
       {/* Bottom Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-3 px-4" style={{ background: 'rgba(7,7,15,0.95)', borderTop: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
+      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-3 px-4" style={{ background: 'var(--navbar-bg)', borderTop: `1px solid var(--subtle-border)`, backdropFilter: 'blur(20px)' }}>
         {tabs.map((tab) => {
           const active = tab.label === 'Settings';
           return (
