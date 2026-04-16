@@ -22,7 +22,7 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        obsidian: '#07070F',
+        obsidian: 'var(--obsidian)',
         deep: '#0D0D1A',
         surface: '#12121F',
         card: {
