@@ -1,9 +1,12 @@
-import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppStore } from '@/store/useAppStore';
 import { useNavigate } from 'react-router-dom';
-import { User, Crown, CreditCard, Shield, HelpCircle, LogOut, ChevronRight, Home, Search, FolderOpen, Settings } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { User, Crown, Shield, HelpCircle, LogOut, ChevronRight, Home, Search, FolderOpen, Settings, Camera, X, Check, Pencil } from 'lucide-react';
 
 const planLabels: Record<string, string> = {
   weekly: '$4.99/week',
@@ -21,11 +24,78 @@ const tabs = [
 const SettingsScreen = () => {
   const navigate = useNavigate();
   const { currentUser, signOut } = useAuth();
-  const { isProUser, selectedPlan } = useAppStore();
+  const { isProUser, selectedPlan, setCurrentUser } = useAppStore();
+  const { toast } = useToast();
+
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(currentUser?.name || '');
+  const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
+  };
+
+  const handleSaveName = async () => {
+    if (!currentUser || !editName.trim()) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ full_name: editName.trim() })
+      .eq('id', currentUser.id);
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to update name', variant: 'destructive' });
+    } else {
+      setCurrentUser({ ...currentUser, name: editName.trim() });
+      toast({ title: 'Updated', description: 'Your name has been saved' });
+      setEditing(false);
+    }
+    setSaving(false);
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+    if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
+      toast({ title: 'Invalid file', description: 'Please select a JPG, PNG, or WebP image', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Max 5MB', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const filePath = `${currentUser.id}/avatar_${Date.now()}.${file.name.split('.').pop()}`;
+    const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
+      setUploadingAvatar(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', currentUser.id);
+
+    if (updateError) {
+      toast({ title: 'Error', description: 'Failed to save avatar', variant: 'destructive' });
+    } else {
+      setCurrentUser({ ...currentUser, avatar: publicUrl });
+      toast({ title: 'Updated', description: 'Avatar saved' });
+    }
+    setUploadingAvatar(false);
+  };
+
+  const startEditing = () => {
+    setEditName(currentUser?.name || '');
+    setEditing(true);
   };
 
   const menuItems = [
@@ -35,10 +105,8 @@ const SettingsScreen = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-obsidian pb-20">
-      {/* Top glow */}
       <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top, rgba(201,168,76,0.08) 0%, transparent 70%)' }} />
 
-      {/* Header */}
       <header className="relative px-6 pt-12 pb-6">
         <h1 className="font-display text-xl font-bold text-foreground">Settings</h1>
       </header>
@@ -46,23 +114,71 @@ const SettingsScreen = () => {
       <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex-1 px-6 space-y-6">
 
         {/* Profile Card */}
-        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5 flex items-center gap-4">
-          <div className="h-14 w-14 rounded-full flex items-center justify-center font-display font-bold text-lg text-obsidian shrink-0" style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}>
-            {currentUser?.avatar ? (
-              <img src={currentUser.avatar} alt="Avatar" className="h-14 w-14 rounded-full object-cover" />
-            ) : (
-              currentUser?.name?.[0]?.toUpperCase() || 'A'
-            )}
+        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5">
+          <div className="flex items-center gap-4">
+            {/* Avatar with upload overlay */}
+            <div className="relative shrink-0">
+              <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleAvatarChange} />
+              <div
+                className="h-16 w-16 rounded-full flex items-center justify-center font-display font-bold text-lg text-obsidian cursor-pointer overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {uploadingAvatar ? (
+                  <div className="h-5 w-5 border-2 border-obsidian border-t-transparent rounded-full animate-spin" />
+                ) : currentUser?.avatar ? (
+                  <img src={currentUser.avatar} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+                ) : (
+                  currentUser?.name?.[0]?.toUpperCase() || 'A'
+                )}
+              </div>
+              <div
+                className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full flex items-center justify-center cursor-pointer"
+                style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Camera className="h-3 w-3 text-obsidian" />
+              </div>
+            </div>
+
+            {/* Name (view or edit) */}
+            <div className="flex-1 min-w-0">
+              <AnimatePresence mode="wait">
+                {editing ? (
+                  <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                    <input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      maxLength={100}
+                      autoFocus
+                      className="flex-1 bg-transparent text-base font-display font-bold text-foreground outline-none border-b border-gold/40 pb-0.5"
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                    />
+                    <button onClick={handleSaveName} disabled={saving} className="h-7 w-7 rounded-full flex items-center justify-center bg-gold/20">
+                      <Check className="h-3.5 w-3.5 text-gold" />
+                    </button>
+                    <button onClick={() => setEditing(false)} className="h-7 w-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <X className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <div className="flex items-center gap-2">
+                      <p className="text-base font-display font-bold text-foreground truncate">
+                        {currentUser?.name || 'AURA User'}
+                      </p>
+                      <button onClick={startEditing} className="h-6 w-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                        <Pencil className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">
+                      {currentUser?.email || 'No email set'}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-base font-display font-bold text-foreground truncate">
-              {currentUser?.name || 'AURA User'}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {currentUser?.email || 'No email set'}
-            </p>
-          </div>
-          <User className="h-5 w-5 text-muted-foreground shrink-0" />
         </motion.div>
 
         {/* Subscription Card */}
@@ -88,7 +204,7 @@ const SettingsScreen = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground font-body">Status</span>
-                  <span className="text-xs text-emerald-400 font-body font-medium">✓ Active Trial</span>
+                  <span className="text-xs font-body font-medium" style={{ color: '#34D399' }}>✓ Active Trial</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground font-body">Features</span>
@@ -142,7 +258,6 @@ const SettingsScreen = () => {
           </motion.button>
         </motion.div>
 
-        {/* App Version */}
         <motion.p variants={fadeUp} className="text-center text-[10px] text-muted-foreground pb-4">
           AURA v1.0.0 · Made with ✦
         </motion.p>
