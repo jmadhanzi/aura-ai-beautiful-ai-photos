@@ -1,15 +1,28 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import AuraLogo from '@/components/AuraLogo';
+import { useAppStore } from '@/store/useAppStore';
+
+const DEV_BYPASS = import.meta.env.DEV;
 
 const SplashScreen = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    // Dev bypass: /?dev=1 skips everything and goes to /home
+    if (DEV_BYPASS && searchParams.get('dev') === '1') {
+      const { setCurrentUser, setIsProUser, setOnboardingComplete } = useAppStore.getState();
+      setCurrentUser({ id: 'dev-user', name: 'Dev User', email: 'dev@aura.app' });
+      setIsProUser(true);
+      setOnboardingComplete(true);
+      navigate('/home', { replace: true });
+      return;
+    }
     const timer = setTimeout(() => navigate('/onboarding/1'), 2500);
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-obsidian">
