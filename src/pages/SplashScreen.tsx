@@ -102,6 +102,17 @@ const SplashScreen = () => {
           ))}
         </motion.div>
       </div>
+
+      {/* Dev bypass button */}
+      {DEV_BYPASS && (
+        <button
+          onClick={devBypass}
+          className="absolute bottom-8 right-6 z-20 rounded-lg px-3 py-1.5 text-[10px] font-mono opacity-40 hover:opacity-100 transition-opacity"
+          style={{ background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C' }}
+        >
+          DEV → /home
+        </button>
+      )}
     </div>
   );
 };
