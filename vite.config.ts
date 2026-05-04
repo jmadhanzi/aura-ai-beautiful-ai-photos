@@ -13,6 +13,20 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react':   ['react', 'react-dom', 'react-router-dom'],
+          'vendor-motion':  ['framer-motion'],
+          'vendor-supabase':['@supabase/supabase-js'],
+          'vendor-query':   ['@tanstack/react-query'],
+          'vendor-fal':     ['@fal-ai/client'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),

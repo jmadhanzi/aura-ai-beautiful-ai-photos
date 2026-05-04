@@ -1,6 +1,12 @@
 import { useRef, useState, useCallback } from 'react';
 
-const BeforeAfterSlider = () => {
+interface Props {
+  beforeUrl?: string;
+  afterUrl?: string;
+  height?: number;
+}
+
+const BeforeAfterSlider = ({ beforeUrl, afterUrl, height = 280 }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
   const dragging = useRef(false);
@@ -23,59 +29,86 @@ const BeforeAfterSlider = () => {
     updatePosition(e.clientX);
   }, [updatePosition]);
 
-  const onPointerUp = useCallback(() => {
-    dragging.current = false;
-  }, []);
+  const onPointerUp = useCallback(() => { dragging.current = false; }, []);
+
+  const hasRealImages = beforeUrl && afterUrl && beforeUrl !== afterUrl;
 
   return (
     <div
       ref={containerRef}
       className="relative w-full select-none touch-none overflow-hidden"
-      style={{ height: 260, borderRadius: 20 }}
+      style={{ height, borderRadius: 20, cursor: 'ew-resize' }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
-      {/* Before (full width background) */}
-      <div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ background: 'linear-gradient(135deg, #14121f, #1a1830)' }}
-      >
-        <span className="text-7xl opacity-60 grayscale">😐</span>
+      {/* Before */}
+      <div className="absolute inset-0 bg-cover bg-center" style={{
+        background: hasRealImages ? undefined : 'linear-gradient(135deg, #14121f, #1a1830)',
+        backgroundImage: hasRealImages && beforeUrl ? `url(${beforeUrl})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}>
+        {!hasRealImages && <div className="w-full h-full flex items-center justify-center"><span className="text-6xl grayscale opacity-50">😐</span></div>}
+        {/* Grayscale filter for before when real image */}
+        {hasRealImages && (
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url(${beforeUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'saturate(0.7) brightness(0.95)',
+          }} />
+        )}
       </div>
 
-      {/* After (clipped from right) */}
+      {/* After */}
       <div
-        className="absolute inset-0 flex items-center justify-center"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
-          background: 'linear-gradient(135deg, #1f1828, #241a30)',
           clipPath: `inset(0 0 0 ${position}%)`,
+          background: hasRealImages ? undefined : 'linear-gradient(135deg, #1f1828, #241a30)',
         }}
       >
-        <span className="text-7xl" style={{ filter: 'drop-shadow(0 0 12px rgba(201,168,76,0.4))' }}>😊</span>
+        {hasRealImages ? (
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url(${afterUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }} />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-6xl" style={{ filter: 'drop-shadow(0 0 16px rgba(200,164,90,0.5))' }}>😊</span>
+          </div>
+        )}
       </div>
 
       {/* Labels */}
-      <span className="absolute bottom-3 left-4 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Before</span>
-      <span className="absolute bottom-3 right-4 text-[10px] font-mono uppercase tracking-wider text-gold">After</span>
+      <div className="absolute bottom-3 left-4 flex items-center gap-1.5">
+        <div className="w-1.5 h-1.5 rounded-full bg-white opacity-40" />
+        <span className="font-mono text-[10px] uppercase tracking-wider text-white opacity-50">Before</span>
+      </div>
+      <div className="absolute bottom-3 right-4 flex items-center gap-1.5">
+        <span className="font-mono text-[10px] uppercase tracking-wider font-bold" style={{ color: 'var(--gold)' }}>After AURA</span>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gold)' }} />
+      </div>
 
-      {/* Drag handle */}
+      {/* Divider line */}
       <div
-        className="absolute top-0 bottom-0 z-10 flex items-center"
+        className="absolute top-0 bottom-0 z-10 flex items-center pointer-events-none"
         style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
       >
-        <div className="h-full w-[2px]" style={{ background: 'rgba(201,168,76,0.7)' }} />
+        <div className="h-full w-px" style={{ background: 'rgba(200,164,90,0.8)' }} />
         <div
           className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center justify-center rounded-full"
           style={{
-            width: 36,
-            height: 36,
-            background: 'linear-gradient(135deg, #C9A84C, #E8C97A)',
-            boxShadow: '0 0 16px rgba(201,168,76,0.5)',
+            width: 38, height: 38,
+            background: 'linear-gradient(135deg, var(--gold-dim), var(--gold))',
+            boxShadow: '0 0 20px rgba(200,164,90,0.5)',
             cursor: 'ew-resize',
+            pointerEvents: 'all',
           }}
         >
-          <span className="text-obsidian text-sm font-bold">⇄</span>
+          <span style={{ color: 'var(--ink)', fontSize: 16, fontWeight: 700 }}>⇄</span>
         </div>
       </div>
     </div>
