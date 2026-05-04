@@ -1,82 +1,99 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { fadeUp, staggerContainer } from '@/design-system/animations';
-import { ChevronRight, ArrowUp, Home, Search, FolderOpen, Settings, LogOut } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Home, Search, FolderOpen, Settings, ArrowUp, ChevronRight, Flame, Sparkles, Camera, TrendingUp, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppStore } from '@/store/useAppStore';
+
+/* ── Data ───────────────────────────────────────────────── */
 const quickTools = [
-  { emoji: '✨', label: 'Skin' },
-  { emoji: '👔', label: 'Headshot' },
-  { emoji: '🌅', label: 'Background' },
-  { emoji: '💎', label: 'Sculpt' },
-  { emoji: '🎨', label: 'Style' },
-  { emoji: '🎬', label: 'Cinematic' },
-  { emoji: '💋', label: 'Makeup' },
-  { emoji: '📱', label: 'Optimize' },
+  { emoji: '✨', label: 'Skin', color: 'var(--gold)', bg: 'rgba(200,164,90,0.1)', border: 'rgba(200,164,90,0.22)' },
+  { emoji: '👔', label: 'Headshot', color: 'var(--rose)', bg: 'rgba(232,84,122,0.08)', border: 'rgba(232,84,122,0.2)' },
+  { emoji: '🌅', label: 'Background', color: 'var(--teal)', bg: 'rgba(0,201,173,0.08)', border: 'rgba(0,201,173,0.2)' },
+  { emoji: '💎', label: 'Sculpt', color: 'var(--violet)', bg: 'rgba(139,108,240,0.08)', border: 'rgba(139,108,240,0.2)' },
+  { emoji: '🎨', label: 'Style', color: 'var(--rose-mid)', bg: 'rgba(232,84,122,0.06)', border: 'rgba(232,84,122,0.16)' },
+  { emoji: '🎬', label: 'Cinematic', color: 'var(--violet-mid)', bg: 'rgba(139,108,240,0.06)', border: 'rgba(139,108,240,0.16)' },
+  { emoji: '💋', label: 'Makeup', color: '#F07090', bg: 'rgba(240,112,144,0.07)', border: 'rgba(240,112,144,0.18)' },
+  { emoji: '📱', label: 'Optimize', color: 'var(--teal-mid)', bg: 'rgba(0,201,173,0.06)', border: 'rgba(0,201,173,0.16)' },
 ];
 
-interface RecentEdit {
-  id: string;
-  name: string;
-  tool: string;
-  time: string;
-  gradient: string;
-}
+const presets = [
+  { id: 'editorial', label: 'Editorial', icon: '📸', desc: 'Vogue-ready', gradient: 'linear-gradient(135deg, #1a1030, #2d1f50)' },
+  { id: 'confident', label: 'Confident', icon: '💼', desc: 'LinkedIn pro', gradient: 'linear-gradient(135deg, #0f1f2e, #1a3244)' },
+  { id: 'natural', label: 'Natural Glow', icon: '🌿', desc: 'Effortless', gradient: 'linear-gradient(135deg, #0d2010, #1a3020)' },
+  { id: 'dramatic', label: 'Dramatic', icon: '🎭', desc: 'High contrast', gradient: 'linear-gradient(135deg, #1a0a0a, #2e1010)' },
+  { id: 'golden', label: 'Golden Hour', icon: '🌤', desc: 'Warm & cinematic', gradient: 'linear-gradient(135deg, #1e1508, #2e2010)' },
+  { id: 'moody', label: 'Moody Film', icon: '🎞', desc: 'Analog grain', gradient: 'linear-gradient(135deg, #0a0a14, #141428)' },
+];
 
 const tabs = [
-  { icon: Home, label: 'Home', path: '/home' },
-  { icon: Search, label: 'Explore', path: '/home' },
-  { icon: FolderOpen, label: 'History', path: '/home' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: Home, label: 'Home' },
+  { icon: Search, label: 'Explore' },
+  { icon: FolderOpen, label: 'History' },
+  { icon: Settings, label: 'Settings' },
 ];
+
+/* ── Component ──────────────────────────────────────────── */
+interface RecentEdit { id: string; name: string; tool: string; time: string; gradient: string; }
 
 const HomeScreen = () => {
   const navigate = useNavigate();
   const { currentUser, signOut } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState('Home');
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiResult, setAiResult] = useState(false);
+  const [aiResult, setAiResult] = useState<string | null>(null);
   const [hoverUpload, setHoverUpload] = useState(false);
   const [recentEdits, setRecentEdits] = useState<RecentEdit[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [streak, setStreak] = useState(7);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
-  const gradients = [
+  const editGradients = [
     'linear-gradient(135deg, #8B5CF6, #C084FC)',
-    'linear-gradient(135deg, #FF6B9D, #F59E0B)',
-    'linear-gradient(135deg, #06B6D4, #3B82F6)',
+    'linear-gradient(135deg, #E8547A, #F59E0B)',
+    'linear-gradient(135deg, #00C9AD, #3B82F6)',
+    'linear-gradient(135deg, #C8A45A, #EED498)',
   ];
 
-  // Fetch recent edits
   useEffect(() => {
     const fetchEdits = async () => {
       const { data } = await supabase
         .from('photo_edits')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(5);
-
+        .limit(6);
       if (data) {
         setRecentEdits(data.map((e, i) => ({
           id: e.id,
-          name: e.original_url?.split('/').pop() || 'Untitled',
+          name: e.original_url?.split('/').pop()?.split('_').slice(1).join('_') || 'Untitled',
           tool: e.tool_used || 'AI Edit',
-          time: new Date(e.created_at).toLocaleDateString(),
-          gradient: gradients[i % gradients.length],
+          time: formatTime(e.created_at),
+          gradient: editGradients[i % editGradients.length],
         })));
       }
     };
     fetchEdits();
   }, []);
 
+  const formatTime = (iso: string) => {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - d.getTime()) / 60000);
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return d.toLocaleDateString();
+  };
+
   const handleFile = useCallback((file: File) => {
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) return;
     setSelectedFile(file);
+    setAiResult(null);
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
@@ -92,13 +109,14 @@ const HomeScreen = () => {
       await supabase.from('photo_edits').insert({
         user_id: currentUser.id,
         original_url: publicUrl,
-        tool_used: 'AI Transform',
+        tool_used: selectedPreset ? `Preset: ${selectedPreset}` : 'AI Transform',
         prompt_used: prompt || null,
       });
     }
     setUploading(false);
     setPreview(null);
     setSelectedFile(null);
+    setSelectedPreset(null);
   };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -108,71 +126,158 @@ const HomeScreen = () => {
     if (file) handleFile(file);
   }, [handleFile]);
 
-  const handlePromptSubmit = () => {
+  const handlePromptSubmit = async () => {
     if (!prompt.trim()) return;
     setAiLoading(true);
-    setAiResult(false);
-    setTimeout(() => { setAiLoading(false); setAiResult(true); }, 2000);
+    setAiResult(null);
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 200,
+          messages: [{
+            role: 'user',
+            content: `You are AURA's AI photo editing engine. Given this editing request: "${prompt}" — respond in 1-2 sentences describing exactly what enhancement you'd apply, naming specific technical adjustments. Be confident and specific. Start with "Applied:"`,
+          }],
+        }),
+      });
+      const data = await response.json();
+      const text = data?.content?.[0]?.text || 'Enhancement queued — upload a photo to apply.';
+      setAiResult(text);
+    } catch {
+      setAiResult('Enhancement queued — upload a photo to apply.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
+  const tabNavigation = (label: string) => {
+    setActiveTab(label);
+    if (label === 'Settings') navigate('/settings');
+  };
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
   return (
-    <div className="flex min-h-screen flex-col bg-obsidian pb-20">
+    <div className="flex min-h-screen flex-col pb-20" style={{ background: 'var(--ink)' }}>
       {/* Top glow */}
-      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: `radial-gradient(ellipse at top, var(--glow-top) 0%, transparent 70%)` }} />
+      <div className="absolute top-0 left-0 right-0 h-36 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at top center, rgba(200,164,90,0.06) 0%, transparent 70%)' }} />
 
       {/* Header */}
-      <header className="relative flex items-center justify-between px-6 pt-12 pb-4">
+      <header className="relative flex items-center justify-between px-6 pt-14 pb-4">
         <div>
-          <p className="text-xs text-muted-foreground font-body">Good morning ✦</p>
-          <h1 className="font-display text-xl font-bold text-foreground">Welcome{currentUser?.name ? `, ${currentUser.name}` : ' to AURA'}</h1>
+          <p className="font-body text-xs" style={{ color: 'var(--text-faint)' }}>{greeting} ✦</p>
+          <h1 className="font-display text-xl font-semibold mt-0.5" style={{ color: 'var(--text-primary)' }}>
+            {currentUser?.name ? `Welcome back, ${currentUser.name.split(' ')[0]}` : 'Welcome to AURA'}
+          </h1>
         </div>
-        <button onClick={signOut} className="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-sm text-obsidian" style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}>
-          {currentUser?.name?.[0]?.toUpperCase() || 'A'}
-        </button>
+        <div className="flex items-center gap-2.5">
+          {/* Streak badge */}
+          <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5"
+            style={{ background: 'rgba(232,84,122,0.08)', border: '1px solid rgba(232,84,122,0.2)' }}>
+            <Flame className="h-3.5 w-3.5" style={{ color: 'var(--rose)' }} />
+            <span className="font-mono text-xs font-bold" style={{ color: 'var(--rose)' }}>{streak}</span>
+          </div>
+          {/* Avatar */}
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={signOut}
+            className="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-sm shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, var(--gold-dim), var(--gold), var(--gold-bright))',
+              color: 'var(--ink)',
+              boxShadow: '0 0 16px rgba(200,164,90,0.3)',
+            }}
+          >
+            {currentUser?.name?.[0]?.toUpperCase() || 'A'}
+          </motion.button>
+        </div>
       </header>
 
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex-1 px-6 space-y-6">
+      <div className="flex-1 px-6 space-y-7">
+        {/* ── Upload Zone ─────────────────────────────────── */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".jpg,.jpeg,.png,.webp"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+        />
 
-        {/* Upload Zone */}
-        <motion.div variants={fadeUp}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".jpg,.jpeg,.png,.webp"
-            className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-          />
-
+        <AnimatePresence mode="wait">
           {!preview ? (
-            <div
+            <motion.div
+              key="upload"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
               onClick={() => fileInputRef.current?.click()}
               onMouseEnter={() => setHoverUpload(true)}
               onMouseLeave={() => setHoverUpload(false)}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
-              className="flex flex-col items-center justify-center gap-3 rounded-[20px] cursor-pointer transition-all"
+              className="flex flex-col items-center justify-center gap-3 rounded-3xl cursor-pointer transition-all"
               style={{
-                padding: '24px',
-                border: `2px dashed ${dragOver ? 'rgba(201,168,76,0.6)' : 'var(--surface-upload-border)'}`,
-                background: dragOver || hoverUpload ? 'var(--surface-upload-bg)' : 'var(--gold-tint-bg)',
+                padding: '28px 20px',
+                border: `1.5px dashed ${dragOver ? 'rgba(200,164,90,0.7)' : hoverUpload ? 'rgba(200,164,90,0.45)' : 'rgba(200,164,90,0.22)'}`,
+                background: dragOver || hoverUpload ? 'rgba(200,164,90,0.05)' : 'rgba(200,164,90,0.025)',
+                transition: 'all 0.2s ease',
               }}
             >
-              <motion.span
-                className="text-[32px]"
-                animate={hoverUpload ? { y: [0, -4, 0] } : { y: 0 }}
-                transition={hoverUpload ? { duration: 0.6, repeat: Infinity, ease: 'easeInOut' } : {}}
+              <motion.div
+                animate={hoverUpload ? { y: [0, -5, 0] } : { y: 0 }}
+                transition={hoverUpload ? { duration: 0.7, repeat: Infinity, ease: 'easeInOut' } : {}}
+                className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                style={{ background: 'rgba(200,164,90,0.1)', border: '1px solid rgba(200,164,90,0.2)' }}
               >
-                📷
-              </motion.span>
-              <p className="text-sm font-body font-medium text-foreground">Upload a photo to transform</p>
-              <p className="text-xs text-muted-foreground">Tap to select · or drag & drop</p>
-            </div>
+                <Camera className="h-6 w-6" style={{ color: 'var(--gold)' }} />
+              </motion.div>
+              <div className="text-center">
+                <p className="font-body text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Drop your photo here</p>
+                <p className="font-body text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Tap to select · JPG, PNG, WebP</p>
+              </div>
+              <div className="flex gap-2">
+                {['Skin', 'Headshot', 'Style'].map((t) => (
+                  <span key={t} className="rounded-full px-2.5 py-1 font-mono text-[10px]"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'var(--text-faint)' }}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
           ) : (
-            <div className="rounded-[20px] overflow-hidden" style={{ border: `2px solid var(--surface-upload-border)` }}>
-              <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
-              <div className="p-4 flex gap-3">
-                <button onClick={() => { setPreview(null); setSelectedFile(null); }} className="flex-1 rounded-xl py-3 text-sm font-body text-muted-foreground" style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)` }}>
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="rounded-3xl overflow-hidden"
+              style={{ border: '1px solid rgba(200,164,90,0.25)' }}
+            >
+              <div className="relative">
+                <img src={preview} alt="Preview" className="w-full h-52 object-cover" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 60%, rgba(5,5,9,0.8) 100%)' }} />
+                {selectedPreset && (
+                  <div className="absolute bottom-3 left-3 rounded-full px-3 py-1"
+                    style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(200,164,90,0.3)' }}>
+                    <span className="font-body text-xs" style={{ color: 'var(--gold)' }}>
+                      {presets.find(p => p.id === selectedPreset)?.icon} {presets.find(p => p.id === selectedPreset)?.label}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="p-4 flex gap-3" style={{ background: 'var(--void)' }}>
+                <button
+                  onClick={() => { setPreview(null); setSelectedFile(null); setSelectedPreset(null); }}
+                  className="flex-1 rounded-xl py-3 text-sm font-body transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'var(--text-muted)' }}
+                >
                   Remove
                 </button>
                 <motion.button
@@ -180,105 +285,210 @@ const HomeScreen = () => {
                   whileTap={{ scale: 0.97 }}
                   onClick={handleUploadAndTransform}
                   disabled={uploading}
-                  className="relative flex-1 rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden disabled:opacity-50"
+                  className="flex-1 rounded-xl py-3 text-sm font-body font-semibold relative overflow-hidden btn-shimmer disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--rose), var(--rose-mid))',
+                    color: '#fff',
+                  }}
                 >
-                  <span className="relative z-10">{uploading ? 'Uploading...' : 'Transform This Photo →'}</span>
-                  <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
+                  {uploading ? 'Uploading…' : 'Transform →'}
                 </motion.button>
               </div>
-            </div>
+            </motion.div>
           )}
-        </motion.div>
+        </AnimatePresence>
 
-        {/* AI Prompt Bar */}
+        {/* ── AI Prompt Bar ─────────────────────────────── */}
         <motion.div
-          variants={fadeUp}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)`, borderLeft: '3px solid #C9A84C' }}
+          style={{
+            background: 'var(--void)',
+            border: '1px solid var(--glass-border)',
+            borderLeft: '3px solid var(--gold)',
+          }}
         >
-          <span className="text-lg shrink-0">✨</span>
+          <Sparkles className="h-4 w-4 shrink-0" style={{ color: 'var(--gold)' }} />
           <input
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handlePromptSubmit()}
-            placeholder="Try 'Make me look confident...'"
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none font-body"
+            placeholder="'Make me look confident and polished…'"
+            className="flex-1 bg-transparent text-sm outline-none font-body"
+            style={{ color: 'var(--text-primary)' }}
           />
           <motion.button
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.88 }}
             onClick={handlePromptSubmit}
-            className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-r from-gold to-gold-light"
+            disabled={aiLoading || !prompt.trim()}
+            className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40"
+            style={{ background: 'linear-gradient(135deg, var(--gold-dim), var(--gold))' }}
           >
-            <ArrowUp className="h-4 w-4 text-obsidian" />
+            <ArrowUp className="h-4 w-4" style={{ color: 'var(--ink)' }} />
           </motion.button>
         </motion.div>
 
-        {/* AI Loading / Result */}
+        {/* AI Loading */}
         {aiLoading && (
-          <div className="rounded-2xl h-16 overflow-hidden" style={{ background: 'linear-gradient(90deg, var(--gold-tint-bg) 0%, var(--gold-tint-border) 50%, var(--gold-tint-bg) 100%)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite', border: `1px solid var(--gold-tint-border)` }} />
-        )}
-        {aiResult && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-4" style={{ background: 'var(--gold-tint-bg)', border: `1px solid var(--gold-tint-border)` }}>
-            <p className="text-xs text-gold font-body font-semibold mb-1">✦ AI Result</p>
-            <p className="text-sm text-foreground/80 font-body">Applied "confident" preset — enhanced jawline definition, brightened eyes, subtle warm color grade. Ready to export!</p>
-          </motion.div>
+          <div className="rounded-2xl h-14 overflow-hidden relative"
+            style={{ background: 'var(--void)', border: '1px solid rgba(200,164,90,0.15)' }}>
+            <div className="absolute inset-0 animate-shimmer"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(200,164,90,0.08), transparent)', backgroundSize: '200% 100%' }} />
+            <div className="absolute inset-0 flex items-center justify-center gap-2">
+              <Zap className="h-4 w-4 animate-pulse" style={{ color: 'var(--gold)' }} />
+              <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>Analyzing your request…</span>
+            </div>
+          </div>
         )}
 
-        {/* Quick Tools */}
-        <motion.div variants={fadeUp}>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Quick Tools</p>
-          <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+        {/* AI Result */}
+        <AnimatePresence>
+          {aiResult && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="rounded-2xl p-4"
+              style={{ background: 'rgba(200,164,90,0.05)', border: '1px solid rgba(200,164,90,0.2)' }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-3.5 w-3.5" style={{ color: 'var(--gold)' }} />
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--gold)' }}>AI Enhancement Ready</span>
+              </div>
+              <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{aiResult}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Quick Tools ───────────────────────────────── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-mono text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Quick Tools</p>
+            <button className="font-body text-xs" style={{ color: 'var(--gold)' }}>See all</button>
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1">
             {quickTools.map((t) => (
               <motion.button
                 key={t.label}
-                whileHover={{ borderColor: 'rgba(201,168,76,0.4)', y: -2 }}
-                className="flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3 shrink-0 transition-all"
-                style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)`, minWidth: '72px' }}
+                whileHover={{ y: -3, borderColor: t.border }}
+                whileTap={{ scale: 0.93 }}
+                className="flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3.5 shrink-0 transition-all"
+                style={{ background: t.bg, border: `1px solid ${t.border}`, minWidth: 68 }}
               >
                 <span className="text-lg">{t.emoji}</span>
-                <span className="text-[10px] font-body text-muted-foreground whitespace-nowrap">{t.label}</span>
+                <span className="font-body text-[10px] font-medium whitespace-nowrap" style={{ color: t.color }}>{t.label}</span>
               </motion.button>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Recent Edits */}
-        <motion.div variants={fadeUp}>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Recent Edits</p>
-          <div className="flex flex-col gap-2">
-            {recentEdits.map((item) => (
-              <motion.div
-                key={item.name}
-                whileHover={{ x: 4 }}
-                className="flex items-center gap-3 rounded-2xl p-3 transition-all cursor-pointer"
-                style={{ background: 'var(--subtle-bg)', border: `1px solid var(--subtle-border)` }}
+        {/* ── AI Style Presets ─────────────────────────── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5" style={{ color: 'var(--rose)' }} />
+              <p className="font-mono text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Style Presets</p>
+            </div>
+            <span className="font-mono text-[10px] rounded-full px-2 py-0.5"
+              style={{ background: 'rgba(232,84,122,0.1)', color: 'var(--rose)', border: '1px solid rgba(232,84,122,0.2)' }}>
+              Trending
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2.5">
+            {presets.map((p) => (
+              <motion.button
+                key={p.id}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedPreset(selectedPreset === p.id ? null : p.id)}
+                className="relative flex flex-col items-center justify-center gap-1.5 rounded-2xl py-4 overflow-hidden"
+                style={{
+                  background: p.gradient,
+                  border: selectedPreset === p.id
+                    ? '1.5px solid var(--gold)'
+                    : '1px solid rgba(255,255,255,0.07)',
+                  boxShadow: selectedPreset === p.id ? '0 0 16px rgba(200,164,90,0.2)' : 'none',
+                }}
               >
-                <div className="h-12 w-12 rounded-xl shrink-0" style={{ background: item.gradient }} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-body font-semibold text-foreground truncate">{item.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{item.tool} · {item.time}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              </motion.div>
+                {selectedPreset === p.id && (
+                  <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ background: 'var(--gold)' }}>
+                    <span style={{ fontSize: 8, color: 'var(--ink)', fontWeight: 800 }}>✓</span>
+                  </div>
+                )}
+                <span className="text-xl">{p.icon}</span>
+                <span className="font-body text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{p.label}</span>
+                <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>{p.desc}</span>
+              </motion.button>
             ))}
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
 
-      {/* Bottom Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-3 px-4" style={{ background: 'var(--navbar-bg)', borderTop: `1px solid var(--subtle-border)`, backdropFilter: 'blur(20px)' }}>
+        {/* ── Recent Edits ──────────────────────────────── */}
+        {recentEdits.length > 0 && (
+          <div className="pb-2">
+            <p className="font-mono text-[10px] uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>Recent Edits</p>
+            <div className="flex flex-col gap-2">
+              {recentEdits.map((item) => (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ x: 3 }}
+                  className="flex items-center gap-3 rounded-2xl p-3.5 cursor-pointer"
+                  style={{ background: 'var(--void)', border: '1px solid var(--glass-border)' }}
+                >
+                  <div className="h-11 w-11 rounded-xl shrink-0" style={{ background: item.gradient }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{item.name}</p>
+                    <p className="font-mono text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{item.tool} · {item.time}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: 'var(--text-faint)' }} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {recentEdits.length === 0 && (
+          <div className="flex flex-col items-center gap-2 py-8">
+            <div className="text-3xl">🪄</div>
+            <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>Your edits will appear here</p>
+            <p className="font-body text-xs text-center max-w-[200px]" style={{ color: 'var(--text-faint)' }}>Upload your first photo to get started</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Bottom Tab Bar ────────────────────────────── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-4 px-4"
+        style={{ background: 'var(--navbar-bg)', borderTop: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(24px)' }}
+      >
         {tabs.map((tab) => {
-          const active = tab.label === 'Home';
+          const active = activeTab === tab.label;
           return (
             <motion.button
               key={tab.label}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navigate(tab.path)}
-              className="flex flex-col items-center gap-1"
+              whileTap={{ scale: 0.88 }}
+              onClick={() => tabNavigation(tab.label)}
+              className="flex flex-col items-center gap-1 relative px-3"
             >
-              <tab.icon className={`h-5 w-5 ${active ? 'text-gold' : 'text-muted-foreground'}`} />
-              <span className={`text-[10px] font-body ${active ? 'text-gold font-semibold' : 'text-muted-foreground'}`}>{tab.label}</span>
+              <tab.icon
+                className="h-5 w-5 transition-colors"
+                style={{ color: active ? 'var(--gold)' : 'var(--text-faint)' }}
+              />
+              <span className="font-body text-[10px] transition-colors" style={{ color: active ? 'var(--gold)' : 'var(--text-faint)', fontWeight: active ? 600 : 400 }}>
+                {tab.label}
+              </span>
+              {active && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                  style={{ background: 'var(--gold)' }}
+                />
+              )}
             </motion.button>
           );
         })}

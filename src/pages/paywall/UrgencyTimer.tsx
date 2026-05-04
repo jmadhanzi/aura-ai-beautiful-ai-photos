@@ -50,7 +50,7 @@ const UrgencyTimer = () => {
   ];
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center bg-obsidian px-6 py-10 overflow-y-auto">
+    <div className="relative flex min-h-screen flex-col items-center bg-ink px-6 py-10 overflow-y-auto">
       <div className="aurora-bg">
         <div className="aurora-blob aurora-gold" />
         <div className="aurora-blob aurora-violet" />
@@ -145,7 +145,7 @@ const UrgencyTimer = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/paywall/7')}
-          className="relative w-full rounded-2xl bg-gradient-to-r from-gold to-gold-light py-4 font-body text-base font-semibold text-obsidian overflow-hidden mb-3"
+          className="relative w-full rounded-2xl bg-gradient-to-r from-rose to-rose-mid py-4 font-body text-base font-semibold text-obsidian overflow-hidden mb-3"
         >
           <span className="relative z-10">Claim My 68% Discount →</span>
           <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />

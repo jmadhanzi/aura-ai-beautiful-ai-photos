@@ -1,18 +1,17 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fadeUp, staggerContainer } from '@/design-system/animations';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppStore } from '@/store/useAppStore';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { User, Crown, Shield, HelpCircle, LogOut, ChevronRight, Home, Search, FolderOpen, Settings, Camera, X, Check, Pencil, Sun, Moon } from 'lucide-react';
+import { User, Crown, Shield, HelpCircle, LogOut, ChevronRight, Home, Search, FolderOpen, Settings, Camera, Check, Pencil, Bell, Palette } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 const planLabels: Record<string, string> = {
-  weekly: '$4.99/week',
-  monthly: '$12.99/month',
-  annual: '$49.99/year ($4.17/mo)',
+  weekly: '$4.99 / week',
+  monthly: '$12.99 / month',
+  annual: '$49.99 / year  ·  $4.17/mo',
 };
 
 const tabs = [
@@ -28,7 +27,6 @@ const SettingsScreen = () => {
   const { isProUser, selectedPlan, setCurrentUser } = useAppStore();
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
-
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(currentUser?.name || '');
   const [saving, setSaving] = useState(false);
@@ -43,16 +41,12 @@ const SettingsScreen = () => {
   const handleSaveName = async () => {
     if (!currentUser || !editName.trim()) return;
     setSaving(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ full_name: editName.trim() })
-      .eq('id', currentUser.id);
-
+    const { error } = await supabase.from('profiles').update({ full_name: editName.trim() }).eq('id', currentUser.id);
     if (error) {
-      toast({ title: 'Error', description: 'Failed to update name', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to save name', variant: 'destructive' });
     } else {
       setCurrentUser({ ...currentUser, name: editName.trim() });
-      toast({ title: 'Updated', description: 'Your name has been saved' });
+      toast({ title: 'Saved', description: 'Name updated successfully' });
       setEditing(false);
     }
     setSaving(false);
@@ -62,242 +56,204 @@ const SettingsScreen = () => {
     const file = e.target.files?.[0];
     if (!file || !currentUser) return;
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
-      toast({ title: 'Invalid file', description: 'Please select a JPG, PNG, or WebP image', variant: 'destructive' });
-      return;
+      toast({ title: 'Invalid file', description: 'JPG, PNG, or WebP only', variant: 'destructive' }); return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Max 5MB', variant: 'destructive' });
-      return;
+      toast({ title: 'Too large', description: 'Max 5MB', variant: 'destructive' }); return;
     }
-
     setUploadingAvatar(true);
-    const filePath = `${currentUser.id}/avatar_${Date.now()}.${file.name.split('.').pop()}`;
-    const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, file, { upsert: true });
-
-    if (uploadError) {
-      toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
-      setUploadingAvatar(false);
-      return;
-    }
-
-    const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ avatar_url: publicUrl })
-      .eq('id', currentUser.id);
-
-    if (updateError) {
-      toast({ title: 'Error', description: 'Failed to save avatar', variant: 'destructive' });
-    } else {
+    const path = `${currentUser.id}/avatar_${Date.now()}.${file.name.split('.').pop()}`;
+    const { error } = await supabase.storage.from('photos').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(path);
+      await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
       setCurrentUser({ ...currentUser, avatar: publicUrl });
-      toast({ title: 'Updated', description: 'Avatar saved' });
+      toast({ title: 'Photo updated' });
+    } else {
+      toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
     }
     setUploadingAvatar(false);
   };
 
-  const startEditing = () => {
-    setEditName(currentUser?.name || '');
-    setEditing(true);
-  };
-
   const menuItems = [
-    { icon: Shield, label: 'Privacy Policy', action: () => {} },
-    { icon: HelpCircle, label: 'Help & Support', action: () => {} },
+    { icon: Crown, label: 'Subscription', sub: isProUser ? `Pro · ${planLabels[selectedPlan] || ''}` : 'Free plan', color: 'var(--gold)', action: () => navigate('/paywall/5') },
+    { icon: Bell, label: 'Notifications', sub: 'Manage push alerts', color: 'var(--violet)', action: () => {} },
+    { icon: Palette, label: 'Appearance', sub: theme === 'dark' ? 'Dark mode' : 'Light mode', color: 'var(--rose)', action: toggleTheme },
+    { icon: Shield, label: 'Privacy & Data', sub: 'On-device processing', color: 'var(--teal)', action: () => {} },
+    { icon: HelpCircle, label: 'Help & Support', sub: 'Contact & FAQ', color: 'var(--gold-mid)', action: () => {} },
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-obsidian pb-20">
-      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: `radial-gradient(ellipse at top, var(--glow-top) 0%, transparent 70%)` }} />
+    <div className="flex min-h-screen flex-col pb-24" style={{ background: 'var(--ink)' }}>
+      {/* Top glow */}
+      <div className="absolute top-0 left-0 right-0 h-36 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at top, rgba(200,164,90,0.05) 0%, transparent 70%)' }} />
 
-      <header className="relative px-6 pt-12 pb-6">
-        <h1 className="font-display text-xl font-bold text-foreground">Settings</h1>
+      <header className="relative px-6 pt-14 pb-6">
+        <p className="font-mono text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>Account</p>
+        <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
       </header>
 
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex-1 px-6 space-y-6">
-
-        {/* Profile Card */}
-        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-5">
-          <div className="flex items-center gap-4">
-            {/* Avatar with upload overlay */}
+      <div className="flex-1 px-6 space-y-6">
+        {/* Profile card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl p-5"
+          style={{ background: 'var(--void)', border: '1px solid var(--glass-border)' }}
+        >
+          <div className="flex items-center gap-4 mb-4">
+            {/* Avatar */}
             <div className="relative shrink-0">
-              <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleAvatarChange} />
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
               <div
-                className="h-16 w-16 rounded-full flex items-center justify-center font-display font-bold text-lg text-obsidian cursor-pointer overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}
+                className="h-16 w-16 rounded-2xl flex items-center justify-center font-display font-bold text-2xl cursor-pointer overflow-hidden"
+                style={{
+                  background: currentUser?.avatar ? 'transparent' : 'linear-gradient(135deg, var(--gold-dim), var(--gold), var(--gold-bright))',
+                  color: 'var(--ink)',
+                  boxShadow: '0 0 20px rgba(200,164,90,0.2)',
+                }}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {uploadingAvatar ? (
-                  <div className="h-5 w-5 border-2 border-obsidian border-t-transparent rounded-full animate-spin" />
-                ) : currentUser?.avatar ? (
-                  <img src={currentUser.avatar} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
-                ) : (
-                  currentUser?.name?.[0]?.toUpperCase() || 'A'
-                )}
+                {currentUser?.avatar
+                  ? <img src={currentUser.avatar} alt="avatar" className="w-full h-full object-cover" />
+                  : (currentUser?.name?.[0]?.toUpperCase() || 'A')
+                }
               </div>
+              {uploadingAvatar && (
+                <div className="absolute inset-0 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(5,5,9,0.6)' }}>
+                  <div className="w-4 h-4 rounded-full border-2 border-gold border-t-transparent animate-spin" />
+                </div>
+              )}
               <div
-                className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full flex items-center justify-center cursor-pointer"
-                style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}
-                onClick={() => fileInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full flex items-center justify-center"
+                style={{ background: 'var(--gold)', border: '2px solid var(--ink)' }}
               >
-                <Camera className="h-3 w-3 text-obsidian" />
+                <Camera className="h-2.5 w-2.5" style={{ color: 'var(--ink)' }} />
               </div>
             </div>
 
-            {/* Name (view or edit) */}
+            {/* Name & email */}
             <div className="flex-1 min-w-0">
               <AnimatePresence mode="wait">
                 {editing ? (
-                  <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="flex items-center gap-2">
                     <input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      maxLength={100}
-                      autoFocus
-                      className="flex-1 bg-transparent text-base font-display font-bold text-foreground outline-none border-b border-gold/40 pb-0.5"
                       onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                      autoFocus
+                      className="flex-1 rounded-xl px-3 py-2 font-body text-sm outline-none"
+                      style={{ background: 'rgba(200,164,90,0.08)', border: '1px solid rgba(200,164,90,0.3)', color: 'var(--text-primary)' }}
                     />
-                    <button onClick={handleSaveName} disabled={saving} className="h-7 w-7 rounded-full flex items-center justify-center bg-gold/20">
-                      <Check className="h-3.5 w-3.5 text-gold" />
-                    </button>
-                    <button onClick={() => setEditing(false)} className="h-7 w-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                      <X className="h-3.5 w-3.5 text-muted-foreground" />
+                    <button onClick={handleSaveName} disabled={saving}
+                      className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: 'var(--gold)' }}>
+                      {saving ? <div className="w-3 h-3 border border-ink border-t-transparent rounded-full animate-spin" />
+                        : <Check className="h-4 w-4" style={{ color: 'var(--ink)' }} />}
                     </button>
                   </motion.div>
                 ) : (
-                  <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <div className="flex items-center gap-2">
-                      <p className="text-base font-display font-bold text-foreground truncate">
-                        {currentUser?.name || 'AURA User'}
-                      </p>
-                      <button onClick={startEditing} className="h-6 w-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                        <Pencil className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
-                      {currentUser?.email || 'No email set'}
+                  <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="flex items-center gap-2">
+                    <p className="font-body font-semibold truncate" style={{ color: 'var(--text-primary)', fontSize: 15 }}>
+                      {currentUser?.name || 'Your Name'}
                     </p>
+                    <button onClick={() => setEditing(true)}>
+                      <Pencil className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
+              <p className="font-body text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>{currentUser?.email}</p>
             </div>
           </div>
-        </motion.div>
 
-        {/* Subscription Card */}
-        <motion.div variants={fadeUp} className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(201,168,76,0.25)' }}>
-          <div className="p-5" style={{ background: isProUser ? 'linear-gradient(135deg, rgba(201,168,76,0.12) 0%, rgba(201,168,76,0.04) 100%)' : 'rgba(26,26,46,1)' }}>
-            <div className="flex items-center gap-2 mb-3">
-              <Crown className={`h-5 w-5 ${isProUser ? 'text-gold' : 'text-muted-foreground'}`} />
-              <span className="text-sm font-display font-bold text-foreground">
-                {isProUser ? 'AURA Pro' : 'Free Plan'}
-              </span>
-              {isProUser && (
-                <span className="ml-auto rounded-full px-2.5 py-0.5 text-[10px] font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light">
-                  ACTIVE
-                </span>
-              )}
+          {/* Pro status */}
+          {isProUser && (
+            <div
+              className="flex items-center gap-2 rounded-xl px-4 py-2.5"
+              style={{ background: 'rgba(200,164,90,0.08)', border: '1px solid rgba(200,164,90,0.2)' }}
+            >
+              <Crown className="h-4 w-4" style={{ color: 'var(--gold)' }} />
+              <span className="font-body text-sm font-medium" style={{ color: 'var(--gold)' }}>Pro Member</span>
+              <span className="ml-auto font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{planLabels[selectedPlan]}</span>
             </div>
-
-            {isProUser ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-body">Plan</span>
-                  <span className="text-xs text-foreground font-body font-medium">{planLabels[selectedPlan] || selectedPlan}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-body">Status</span>
-                  <span className="text-xs font-body font-medium" style={{ color: '#34D399' }}>✓ Active Trial</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-body">Features</span>
-                  <span className="text-xs text-foreground font-body font-medium">All 50+ tools unlocked</span>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground font-body">Unlock all 50+ AI tools, unlimited exports, and priority processing.</p>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/paywall/1')}
-                  className="relative w-full rounded-xl py-3 text-sm font-body font-semibold text-obsidian bg-gradient-to-r from-gold to-gold-light overflow-hidden"
-                >
-                  <span className="relative z-10">✦ Upgrade to Pro</span>
-                  <div className="absolute inset-0 animate-shimmer" style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%)', backgroundSize: '200% 100%' }} />
-                </motion.button>
-              </div>
-            )}
-          </div>
+          )}
         </motion.div>
 
-        {/* Theme Toggle */}
-        <motion.div variants={fadeUp} className="glass-card rounded-2xl p-4 flex items-center gap-3">
-          {theme === 'dark' ? <Moon className="h-5 w-5 text-muted-foreground" /> : <Sun className="h-5 w-5 text-gold" />}
-          <span className="flex-1 text-sm font-body font-medium text-foreground">
-            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-          </span>
-          <button
-            onClick={toggleTheme}
-            className="relative h-7 w-12 rounded-full transition-colors duration-300"
-            style={{ background: theme === 'dark' ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.5)' }}
-          >
-            <motion.div
-              className="absolute top-0.5 h-6 w-6 rounded-full"
-              style={{ background: 'linear-gradient(135deg, #C9A84C, #E8C97A)' }}
-              animate={{ left: theme === 'dark' ? '2px' : '22px' }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            />
-          </button>
-        </motion.div>
-
-        {/* Menu Items */}
-        <motion.div variants={fadeUp} className="space-y-2">
-          {menuItems.map((item) => (
+        {/* Menu items */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="rounded-3xl overflow-hidden"
+          style={{ background: 'var(--void)', border: '1px solid var(--glass-border)' }}
+        >
+          {menuItems.map((item, i) => (
             <motion.button
               key={item.label}
-              whileHover={{ x: 4 }}
+              whileHover={{ x: 3 }}
+              whileTap={{ scale: 0.98 }}
               onClick={item.action}
-              className="flex w-full items-center gap-3 rounded-2xl p-4 glass-card transition-all"
+              className="flex items-center gap-4 w-full px-5 py-4 text-left transition-colors"
+              style={{ borderBottom: i < menuItems.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
             >
-              <item.icon className="h-5 w-5 text-muted-foreground" />
-              <span className="flex-1 text-left text-sm font-body font-medium text-foreground">{item.label}</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: `${item.color}14`, border: `1px solid ${item.color}28` }}>
+                <item.icon className="h-4 w-4" style={{ color: item.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-body text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.label}</p>
+                <p className="font-body text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{item.sub}</p>
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0" style={{ color: 'var(--text-faint)' }} />
             </motion.button>
           ))}
         </motion.div>
 
-        {/* Sign Out */}
-        <motion.div variants={fadeUp}>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={handleSignOut}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-body font-semibold transition-all"
-            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444' }}
-          >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </motion.button>
-        </motion.div>
+        {/* Sign out */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSignOut}
+          className="flex items-center justify-center gap-2 w-full rounded-2xl py-4 font-body text-sm font-medium"
+          style={{ background: 'rgba(232,84,122,0.07)', border: '1px solid rgba(232,84,122,0.18)', color: 'var(--rose)' }}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </motion.button>
 
-        <motion.p variants={fadeUp} className="text-center text-[10px] text-muted-foreground pb-4">
-          AURA v1.0.0 · Made with ✦
-        </motion.p>
-      </motion.div>
+        <p className="font-mono text-center text-[10px]" style={{ color: 'var(--text-faint)' }}>
+          AURA v2.0.0 · Made with ♥
+        </p>
+      </div>
 
       {/* Bottom Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-3 px-4" style={{ background: 'var(--navbar-bg)', borderTop: `1px solid var(--subtle-border)`, backdropFilter: 'blur(20px)' }}>
+      <nav
+        className="fixed bottom-0 left-0 right-0 flex items-center justify-around py-4 px-4"
+        style={{ background: 'var(--navbar-bg)', borderTop: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(24px)' }}
+      >
         {tabs.map((tab) => {
           const active = tab.label === 'Settings';
           return (
             <motion.button
               key={tab.label}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.88 }}
               onClick={() => navigate(tab.path)}
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center gap-1 relative px-3"
             >
-              <tab.icon className={`h-5 w-5 ${active ? 'text-gold' : 'text-muted-foreground'}`} />
-              <span className={`text-[10px] font-body ${active ? 'text-gold font-semibold' : 'text-muted-foreground'}`}>{tab.label}</span>
+              <tab.icon className="h-5 w-5 transition-colors" style={{ color: active ? 'var(--gold)' : 'var(--text-faint)' }} />
+              <span className="font-body text-[10px]" style={{ color: active ? 'var(--gold)' : 'var(--text-faint)', fontWeight: active ? 600 : 400 }}>
+                {tab.label}
+              </span>
+              {active && (
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ background: 'var(--gold)' }} />
+              )}
             </motion.button>
           );
         })}

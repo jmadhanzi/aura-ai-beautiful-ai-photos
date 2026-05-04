@@ -1,61 +1,79 @@
 import { motion } from 'framer-motion';
 
 const AuraLogo = ({ size = 'default' }: { size?: 'default' | 'small' }) => {
-  const scale = size === 'small' ? 0.6 : 1;
+  const s = size === 'small' ? 0.65 : 1;
+  const dim = 100 * s;
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 110 * scale, height: 110 * scale }}>
-      {/* Ring 1 — breathing scale */}
-      <motion.div
-        className="absolute rounded-full animate-[spin_8s_linear_infinite]"
-        animate={{ scale: [1, 1.03, 1] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+    <div className="relative flex items-center justify-center" style={{ width: dim, height: dim }}>
+      {/* Outer pulse ring */}
+      <div
+        className="absolute rounded-full pointer-events-none"
         style={{
-          width: 110 * scale,
-          height: 110 * scale,
-          border: `${1.5 * scale}px solid rgba(201,168,76,0.6)`,
+          width: dim,
+          height: dim,
+          border: `1px solid rgba(200,164,90,0.2)`,
+          animation: 'pulseRing 3s ease-out infinite',
         }}
       />
-      {/* Ring 2 */}
-      <div
-        className="absolute rounded-full animate-[spin_6s_linear_infinite_reverse]"
+      {/* Ring 1 — slow spin */}
+      <motion.div
+        className="absolute rounded-full"
         style={{
-          width: 84 * scale,
-          height: 84 * scale,
-          border: `${1 * scale}px solid rgba(201,168,76,0.3)`,
+          width: dim,
+          height: dim,
+          border: `${1.5 * s}px solid transparent`,
+          borderTopColor: 'rgba(200,164,90,0.7)',
+          borderRightColor: 'rgba(200,164,90,0.3)',
         }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+      />
+      {/* Ring 2 — reverse */}
+      <motion.div
+        className="absolute rounded-full"
+        style={{
+          width: 74 * s,
+          height: 74 * s,
+          border: `${1 * s}px solid transparent`,
+          borderTopColor: 'rgba(139,108,240,0.5)',
+          borderLeftColor: 'rgba(139,108,240,0.2)',
+        }}
+        animate={{ rotate: -360 }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
       />
       {/* Ring 3 */}
-      <div
-        className="absolute rounded-full animate-[spin_4s_linear_infinite]"
+      <motion.div
+        className="absolute rounded-full"
         style={{
-          width: 60 * scale,
-          height: 60 * scale,
-          border: `${1 * scale}px solid rgba(0,229,195,0.25)`,
+          width: 52 * s,
+          height: 52 * s,
+          border: `${1 * s}px solid transparent`,
+          borderTopColor: 'rgba(0,201,173,0.4)',
+          borderBottomColor: 'rgba(0,201,173,0.15)',
         }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
       />
-      {/* Center */}
-      <div
+      {/* Center gem */}
+      <motion.div
         className="relative z-10 flex items-center justify-center rounded-full"
         style={{
-          width: 46 * scale,
-          height: 46 * scale,
-          background: 'linear-gradient(135deg, #C9A84C, #E8C97A)',
-          boxShadow: '0 0 30px rgba(201,168,76,0.5)',
+          width: 38 * s,
+          height: 38 * s,
+          background: 'linear-gradient(135deg, #C8A45A 0%, #EED498 50%, #C8A45A 100%)',
+          boxShadow: `0 0 ${30 * s}px rgba(200,164,90,0.5), 0 0 ${60 * s}px rgba(200,164,90,0.2)`,
         }}
+        animate={{ scale: [1, 1.04, 1] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
       >
         <span
           className="font-display"
-          style={{
-            fontSize: 22 * scale,
-            fontWeight: 900,
-            color: '#07070F',
-            lineHeight: 1,
-          }}
+          style={{ fontSize: 18 * s, fontWeight: 700, color: '#050509', lineHeight: 1, letterSpacing: '-0.02em' }}
         >
           A
         </span>
-      </div>
+      </motion.div>
     </div>
   );
 };
