@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import SplashScreen from "./pages/SplashScreen";
 import OnboardingHero from "./pages/OnboardingHero";
 import OnboardingFeatures from "./pages/OnboardingFeatures";
+import OnboardingAha from "./pages/OnboardingAha";
 import LoginHub from "./pages/LoginHub";
 import TikTokLogin from "./pages/TikTokLogin";
 import { FacebookLogin, InstagramLogin, PhoneLogin, EmailLogin } from "./pages/LoginPages";
@@ -37,6 +38,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<PageTransition><SplashScreen /></PageTransition>} />
         <Route path="/onboarding/1" element={<PageTransition><OnboardingHero /></PageTransition>} />
         <Route path="/onboarding/2" element={<PageTransition><OnboardingFeatures /></PageTransition>} />
+        <Route path="/onboarding/3" element={<PageTransition><OnboardingAha /></PageTransition>} />
         <Route path="/login" element={<PageTransition><LoginHub /></PageTransition>} />
         <Route path="/login/tiktok" element={<PageTransition><TikTokLogin /></PageTransition>} />
         <Route path="/login/facebook" element={<PageTransition><FacebookLogin /></PageTransition>} />

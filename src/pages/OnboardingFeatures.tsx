@@ -121,7 +121,7 @@ const OnboardingFeatures = () => {
           transition={{ delay: 0.7, duration: 0.5 }}
           whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(232,84,122,0.35)' }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/onboarding/3')}
           className="relative w-full rounded-2xl py-4 font-body text-base font-semibold overflow-hidden btn-shimmer"
           style={{
             background: 'linear-gradient(135deg, var(--rose), var(--rose-mid))',
@@ -129,7 +129,7 @@ const OnboardingFeatures = () => {
             boxShadow: '0 0 24px rgba(232,84,122,0.2)',
           }}
         >
-          Create My Account
+          Experience It →
         </motion.button>
       </div>
     </div>

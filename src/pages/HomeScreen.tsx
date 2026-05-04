@@ -18,6 +18,16 @@ const quickTools = [
   { emoji: '📱', label: 'Optimize', color: 'var(--teal-mid)', bg: 'rgba(0,201,173,0.06)', border: 'rgba(0,201,173,0.16)' },
 ];
 
+
+const oneTapChips = [
+  { label: 'Polish this', icon: '✨' },
+  { label: 'Make it editorial', icon: '📸' },
+  { label: 'LinkedIn ready', icon: '💼' },
+  { label: 'Dating profile', icon: '💛' },
+  { label: 'Red carpet', icon: '🏆' },
+  { label: 'Natural glow', icon: '🌿' },
+];
+
 const presets = [
   { id: 'editorial', label: 'Editorial', icon: '📸', desc: 'Vogue-ready', gradient: 'linear-gradient(135deg, #1a1030, #2d1f50)' },
   { id: 'confident', label: 'Confident', icon: '💼', desc: 'LinkedIn pro', gradient: 'linear-gradient(135deg, #0f1f2e, #1a3244)' },
@@ -138,9 +148,10 @@ const HomeScreen = () => {
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 200,
+          system: 'You are AURA — the world\'s most advanced AI beauty editor. Respond in exactly 2 short lines. Line 1 starts "Applied:" and names specific technical adjustments (frequency separation, luminosity masks, LUT grading, etc). Line 2 starts "Result:" and states the visual outcome in confident, punchy language. Never be generic. Always sound like a $500 professional edit.',
           messages: [{
             role: 'user',
-            content: `You are AURA's AI photo editing engine. Given this editing request: "${prompt}" — respond in 1-2 sentences describing exactly what enhancement you'd apply, naming specific technical adjustments. Be confident and specific. Start with "Applied:"`,
+            content: prompt,
           }],
         }),
       });
@@ -331,6 +342,33 @@ const HomeScreen = () => {
           </motion.button>
         </motion.div>
 
+
+        {/* ── One-tap Transformation Chips ───────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="flex gap-2 overflow-x-auto scrollbar-none pb-1 -mx-1 px-1"
+        >
+          {oneTapChips.map((chip) => (
+            <motion.button
+              key={chip.label}
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={() => { setPrompt(chip.label); }}
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0 font-body text-xs font-medium transition-all"
+              style={{
+                background: prompt === chip.label ? 'rgba(200,164,90,0.12)' : 'var(--void)',
+                border: `1px solid ${prompt === chip.label ? 'rgba(200,164,90,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                color: prompt === chip.label ? 'var(--gold)' : 'var(--text-secondary)',
+              }}
+            >
+              <span style={{ fontSize: 11 }}>{chip.icon}</span>
+              {chip.label}
+            </motion.button>
+          ))}
+        </motion.div>
+
         {/* AI Loading */}
         {aiLoading && (
           <div className="rounded-2xl h-14 overflow-hidden relative"
@@ -346,21 +384,59 @@ const HomeScreen = () => {
 
         {/* AI Result */}
         <AnimatePresence>
-          {aiResult && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="rounded-2xl p-4"
-              style={{ background: 'rgba(200,164,90,0.05)', border: '1px solid rgba(200,164,90,0.2)' }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-3.5 w-3.5" style={{ color: 'var(--gold)' }} />
-                <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--gold)' }}>AI Enhancement Ready</span>
-              </div>
-              <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{aiResult}</p>
-            </motion.div>
-          )}
+          {aiResult && (() => {
+            const appliedMatch = aiResult.match(/Applied:(.*?)(?=Result:|$)/s);
+            const resultMatch = aiResult.match(/Result:(.*)/s);
+            const applied = appliedMatch?.[1]?.trim() ?? aiResult;
+            const resultText = resultMatch?.[1]?.trim();
+            return (
+              <motion.div
+                key="ai-result"
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+                className="rounded-2xl overflow-hidden"
+                style={{ border: '1px solid rgba(200,164,90,0.22)' }}
+              >
+                <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(200,164,90,0.07)', borderBottom: '1px solid rgba(200,164,90,0.12)' }}>
+                  <Sparkles className="h-3.5 w-3.5" style={{ color: 'var(--gold)' }} />
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--gold)' }}>✦ Enhancement Queued</span>
+                  <div className="ml-auto flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
+                    <span className="font-mono text-[9px]" style={{ color: 'var(--teal)' }}>READY</span>
+                  </div>
+                </div>
+                <div className="px-4 pt-3 pb-3" style={{ background: 'var(--void)' }}>
+                  <div className="flex items-start gap-2 mb-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: 'var(--rose)' }} />
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-widest block mb-0.5" style={{ color: 'var(--text-faint)' }}>Applied</span>
+                      <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{applied}</p>
+                    </div>
+                  </div>
+                  {resultText && (
+                    <div className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: 'var(--teal)' }} />
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-widest block mb-0.5" style={{ color: 'var(--text-faint)' }}>Result</span>
+                        <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{resultText}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="px-4 py-2.5 flex items-center justify-between"
+                  style={{ background: 'rgba(200,164,90,0.03)', borderTop: '1px solid rgba(200,164,90,0.08)' }}>
+                  <span className="font-body text-xs" style={{ color: 'var(--text-muted)' }}>Upload a photo to apply this</span>
+                  <button
+                    onClick={() => { setAiResult(null); setPrompt(''); }}
+                    className="font-mono text-[10px]"
+                    style={{ color: 'var(--text-faint)' }}
+                  >clear ×</button>
+                </div>
+              </motion.div>
+            );
+          })()}
         </AnimatePresence>
 
         {/* ── Quick Tools ───────────────────────────────── */}

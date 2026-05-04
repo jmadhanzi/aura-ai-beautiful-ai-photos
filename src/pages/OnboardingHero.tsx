@@ -67,7 +67,7 @@ const OnboardingHero = () => {
           className="text-center mb-3"
         >
           <h1 className="font-display leading-none" style={{ fontSize: 40, fontWeight: 700, color: 'var(--text-primary)' }}>
-            Your most{' '}
+            Your thoughts,{' '}
             <em
               className="not-italic italic"
               style={{
@@ -77,9 +77,8 @@ const OnboardingHero = () => {
                 backgroundClip: 'text',
               }}
             >
-              beautiful
-            </em>{' '}
-            self, unlocked
+              elevated.
+            </em>
           </h1>
         </motion.div>
 
@@ -91,7 +90,7 @@ const OnboardingHero = () => {
           className="font-body text-center text-sm leading-relaxed mb-10 max-w-[280px]"
           style={{ color: 'var(--text-muted)' }}
         >
-          Professional-grade AI editing that used to cost $200/session — done in seconds, on your phone.
+          Type any look you want. AURA's AI applies it with professional-grade precision — in seconds.
         </motion.p>
 
         {/* CTAs */}
