@@ -165,7 +165,7 @@ const EmotionalHook = () => {
           <motion.button
             whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(232,84,122,0.35)' }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/paywall/1')}
+            onClick={() => navigate('/paywall/2')}
             className="relative w-full rounded-2xl py-4 font-body text-base font-semibold overflow-hidden btn-shimmer"
             style={{ background: 'linear-gradient(135deg, var(--rose), var(--rose-mid))', color: '#fff', boxShadow: '0 0 24px rgba(232,84,122,0.2)' }}
           >

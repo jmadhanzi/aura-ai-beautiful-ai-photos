@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Search, FolderOpen, Settings, ArrowUp, ChevronRight,
   Flame, Sparkles, Camera, TrendingUp, Zap, Download, Share2,
-  Copy, Crown, X, LayoutGrid, Clock, Wand2, Dna,
+  Copy, Crown, X, LayoutGrid, Wand2, Dna,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,7 @@ import { downloadImage, shareImage } from '@/services/exportService';
 import { getOrCreateReferralCode, shareReferral, copyReferralLink } from '@/services/referral';
 import { Analytics } from '@/services/analytics';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
-import { EditSkeleton, GallerySkeleton } from '@/components/Skeleton';
+import { GallerySkeleton } from '@/components/Skeleton';
 
 /* ── Static data ─────────────────────────────────────── */
 const quickTools = [
@@ -46,6 +46,13 @@ const oneTapChips = [
   { label: '🏆 Red carpet',      prompt: 'Glamorous red carpet ready look' },
 ];
 
+const EDIT_GRADIENTS = [
+  'linear-gradient(135deg, #8B5CF6, #C084FC)',
+  'linear-gradient(135deg, #E8547A, #F59E0B)',
+  'linear-gradient(135deg, #00C9AD, #3B82F6)',
+  'linear-gradient(135deg, #C8A45A, #EED498)',
+];
+
 const navTabs = [
   { icon: Home,       label: 'Home',    view: 'home' },
   { icon: LayoutGrid, label: 'Gallery', view: 'gallery' },
@@ -54,8 +61,7 @@ const navTabs = [
 ];
 
 /* ── AI System prompt ────────────────────────────────── */
-const AURA_SYSTEM = `You are AURA — the world's most advanced AI beauty editor. The user's goal is: ${localStorage.getItem('aura_goal') ?? 'everyday confidence'}.
-Respond in exactly 2 lines. Line 1 starts "Applied:" and names specific technical adjustments. Line 2 starts "Result:" and states the visual outcome confidently. Reference real techniques: frequency separation, luminosity masks, LUT grading, face sculpting vectors. Sound like a $500 professional edit brief.`;
+// AURA_SYSTEM is now built inside the component using a ref to capture goal
 
 /* ── Style DNA helper ────────────────────────────────── */
 function computeStyleDNA(edits: { tool_used?: string }[]) {
@@ -112,12 +118,10 @@ const HomeScreen = () => {
   const [styleDNA, setStyleDNA] = useState<string[]>([]);
   const [streak] = useState(7);
 
-  const gradients = [
-    'linear-gradient(135deg, #8B5CF6, #C084FC)',
-    'linear-gradient(135deg, #E8547A, #F59E0B)',
-    'linear-gradient(135deg, #00C9AD, #3B82F6)',
-    'linear-gradient(135deg, #C8A45A, #EED498)',
-  ];
+  // Build system prompt inside component so localStorage is read at runtime
+  const auraSystem = `You are AURA — the world's most advanced AI beauty editor. The user's goal is: ${typeof window !== 'undefined' ? (localStorage.getItem('aura_goal') ?? 'everyday confidence') : 'everyday confidence'}.
+Respond in exactly 2 lines. Line 1 starts "Applied:" and names specific technical adjustments (frequency separation, luminosity masks, LUT grading, face sculpting vectors). Line 2 starts "Result:" and states the outcome confidently. Sound like a $500 professional edit brief.`;
+
 
   /* ── Fetch edits ─────────────────────────────────── */
   useEffect(() => {
@@ -137,7 +141,7 @@ const HomeScreen = () => {
           time: formatTime(e.created_at),
           original_url: e.original_url,
           edited_url: e.edited_url,
-          gradient: gradients[i % gradients.length],
+          gradient: EDIT_GRADIENTS[i % EDIT_GRADIENTS.length],
         }));
         setEdits(mapped);
         // Compute Style DNA from history
@@ -237,7 +241,7 @@ const HomeScreen = () => {
         id: e.id, name: e.original_url?.split('/').pop()?.split('_').slice(1).join('_') || 'Edit',
         tool: e.tool_used ?? 'AI Edit', time: formatTime(e.created_at),
         original_url: e.original_url, edited_url: e.edited_url,
-        gradient: gradients[i % gradients.length],
+        gradient: EDIT_GRADIENTS[i % EDIT_GRADIENTS.length],
       })));
       if (fresh.length >= 3) setStyleDNA(computeStyleDNA(fresh));
     }
@@ -257,7 +261,7 @@ const HomeScreen = () => {
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 200,
-          system: AURA_SYSTEM,
+          system: auraSystem,
           messages: [{ role: 'user', content: prompt }],
         }),
       });
@@ -648,7 +652,7 @@ const HomeScreen = () => {
                 {quickTools.map((t) => (
                   <motion.button key={t.label}
                     whileHover={{ y: -3 }} whileTap={{ scale: 0.93 }}
-                    onClick={() => { setSelectedTool(t.id); if (preview) {} else fileInputRef.current?.click(); }}
+                    onClick={() => { setSelectedTool(t.id); if (!preview) fileInputRef.current?.click(); }}
                     className="flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3.5 shrink-0"
                     style={{ background: selectedTool === t.id ? t.bg : 'var(--void)', border: `1px solid ${selectedTool === t.id ? t.border : 'rgba(255,255,255,0.07)'}`, minWidth: 68 }}>
                     <span className="text-lg">{t.emoji}</span>

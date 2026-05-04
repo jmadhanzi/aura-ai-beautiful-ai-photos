@@ -76,7 +76,7 @@ const SettingsScreen = () => {
   };
 
   const menuItems = [
-    { icon: Crown, label: 'Subscription', sub: isProUser ? `Pro · ${planLabels[selectedPlan] || ''}` : 'Free plan', color: 'var(--gold)', action: () => navigate('/paywall/5') },
+    { icon: Crown, label: 'Subscription', sub: isProUser ? `Pro · ${planLabels[selectedPlan] || ''}` : 'Free plan', color: 'var(--gold)', action: () => navigate('/paywall/2') },
     { icon: Bell, label: 'Notifications', sub: 'Manage push alerts', color: 'var(--violet)', action: () => {} },
     { icon: Palette, label: 'Appearance', sub: theme === 'dark' ? 'Dark mode' : 'Light mode', color: 'var(--rose)', action: toggleTheme },
     { icon: Shield, label: 'Privacy & Data', sub: 'On-device processing', color: 'var(--teal)', action: () => {} },

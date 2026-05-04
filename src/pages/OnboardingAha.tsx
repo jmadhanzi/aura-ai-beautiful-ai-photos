@@ -88,7 +88,7 @@ const OnboardingAha = () => {
         >
           <div className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
           <span className="font-mono text-[10px] font-medium tracking-widest uppercase" style={{ color: 'var(--gold)' }}>
-            Step 3 · Try it now
+            Step 4 · Try it now
           </span>
         </motion.div>
 

@@ -144,7 +144,7 @@ const UrgencyTimer = () => {
           variants={fadeUp}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/paywall/7')}
+          onClick={() => navigate('/paywall/3')}
           className="relative w-full rounded-2xl bg-gradient-to-r from-rose to-rose-mid py-4 font-body text-base font-semibold text-obsidian overflow-hidden mb-3"
         >
           <span className="relative z-10">Claim My 68% Discount →</span>
@@ -152,7 +152,7 @@ const UrgencyTimer = () => {
         </motion.button>
         <motion.button
           variants={fadeUp}
-          onClick={() => navigate('/paywall/7')}
+          onClick={() => navigate('/paywall/3')}
           className="w-full py-3 text-sm text-muted-foreground font-body transition-colors hover:text-foreground"
         >
           No thanks, I'll pay full price later

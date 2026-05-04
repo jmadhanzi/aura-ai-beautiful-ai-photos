@@ -52,7 +52,7 @@ const OnboardingFeatures = () => {
         >
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-4"
             style={{ border: '1px solid rgba(200,164,90,0.2)', background: 'rgba(200,164,90,0.05)' }}>
-            <span className="font-body text-[10px] font-medium tracking-widest uppercase" style={{ color: 'var(--gold)' }}>Step 2 of 2</span>
+            <span className="font-body text-[10px] font-medium tracking-widest uppercase" style={{ color: 'var(--gold)' }}>Step 2 of 4</span>
           </div>
           <h1 className="font-display" style={{ fontSize: 36, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.1 }}>
             A full studio

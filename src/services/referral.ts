@@ -15,11 +15,13 @@ export async function getOrCreateReferralCode(userId: string): Promise<string> {
   // Check if profile already has a referral code
   const { data: profile } = await supabase
     .from('profiles')
-    .select('referral_code')
+    .select('*')
     .eq('id', userId)
     .single();
 
-  if (profile?.referral_code) return profile.referral_code as string;
+  // referral_code is a custom column not in generated types - access via unknown cast
+  const existingCode = (profile as unknown as Record<string, unknown>)?.referral_code as string | undefined;
+  if (existingCode) return existingCode;
 
   // Generate and save
   const code = generateCode(userId);

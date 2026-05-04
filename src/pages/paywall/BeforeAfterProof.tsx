@@ -82,7 +82,7 @@ const BeforeAfterProof = () => {
           variants={fadeUp}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate('/paywall/3')}
+          onClick={() => navigate('/paywall/2')}
           className="relative w-full rounded-2xl bg-gradient-to-r from-rose to-rose-mid py-4 font-body text-base font-semibold text-obsidian overflow-hidden mt-auto"
         >
           <span className="relative z-10">I'm Convinced — Continue →</span>

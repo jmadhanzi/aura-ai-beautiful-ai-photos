@@ -101,10 +101,10 @@ const OnboardingPersonalize = () => {
 
         {/* Progress bar */}
         <div className="flex gap-1.5 mb-6 justify-center">
-          {[1,2,3].map(n => (
+          {[1,2,3,4].map(n => (
             <div key={n} className="h-1 rounded-full transition-all" style={{
-              width: n <= 2 ? 24 : 12,
-              background: n <= 2 ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
+              width: n <= 3 ? 24 : 12,
+              background: n <= 3 ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
             }} />
           ))}
         </div>

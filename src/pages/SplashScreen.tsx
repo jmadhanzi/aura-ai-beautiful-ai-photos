@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -10,13 +11,13 @@ const SplashScreen = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const devBypass = () => {
+  const devBypass = useCallback(() => {
     const { setCurrentUser, setIsProUser, setOnboardingComplete } = useAppStore.getState();
     setCurrentUser({ id: 'dev-user', name: 'Dev User', email: 'dev@aura.app' });
     setIsProUser(true);
     setOnboardingComplete(true);
     navigate('/home', { replace: true });
-  };
+  }, [navigate]);
 
   useEffect(() => {
     if (DEV_BYPASS && searchParams.get('dev') === '1') {
@@ -25,7 +26,7 @@ const SplashScreen = () => {
     }
     const timer = setTimeout(() => navigate('/onboarding/1'), 2800);
     return () => clearTimeout(timer);
-  }, []);
+  }, [devBypass, navigate, searchParams]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden" style={{ background: 'var(--ink)' }}>
